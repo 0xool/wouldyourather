@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import '../../App.css';
 import { Link } from 'react-router-dom';
+import * as STATICS from '../../Const/Const';
 
 
 
@@ -98,7 +99,7 @@ class ValidateQuestion extends Component {
     }
 
     componentDidMount() {
-        const request = axios.get(`http://localhost:3001/api/getUnverifiedQuestions`)
+        const request = axios.get(`${STATICS.SERVER_API_ADDRESS}getUnverifiedQuestions`)
                     .then(response => {
                         this.setState({lodaing:false})
                         this.setState({unveridiedQuestions:response.data})  
@@ -113,7 +114,7 @@ class ValidateQuestion extends Component {
 
     acceptHandler () {
         var index = this.state.questionIndex + 1
-        axios.post("http://localhost:3001/api/validateQuestionById",{_id:this.state.currentQuestion._id})
+        axios.post(`${STATICS.SERVER_API_ADDRESS}validateQuestionById`,{_id:this.state.currentQuestion._id})
         if (index < this.state.unveridiedQuestions.length){
             this.setState({questionIndex:index})
             var currentQuestion = this.state.unveridiedQuestions[index]
@@ -130,7 +131,7 @@ class ValidateQuestion extends Component {
 
     rejectHandler () {
         var index = this.state.questionIndex + 1
-        axios.delete("http://localhost:3001/api/deleteQuestionById",{data:{_id:this.state.currentQuestion._id}}).then(res => console.log(res))
+        axios.delete(`${STATICS.SERVER_API_ADDRESS}deleteQuestionById`,{data:{_id:this.state.currentQuestion._id}}).then(res => console.log(res))
         if (index < this.state.unveridiedQuestions.length){
             this.setState({questionIndex:index})            
             var currentQuestion = this.state.unveridiedQuestions[index]

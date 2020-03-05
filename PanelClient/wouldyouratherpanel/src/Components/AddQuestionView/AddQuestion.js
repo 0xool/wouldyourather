@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import '../../App.css';
 import { Link } from 'react-router-dom';
+import * as STATICS from '../../Const/Const';
 
 
 
@@ -98,7 +99,7 @@ class AddQuestion extends Component {
             return
         }
 
-        axios.post('http://localhost:3001/api/postQuestion',{firstQuestion:this.state.firstQuestion,secondQuestion:this.state.secondQuestion}).then(
+        axios.post(`${STATICS.SERVER_API_ADDRESS}postQuestion`,{firstQuestion:this.state.firstQuestion,secondQuestion:this.state.secondQuestion}).then(
             alert('سوال اضافه شد')
         ).catch(err => {
             alert(err.response.data)

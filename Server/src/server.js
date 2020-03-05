@@ -101,6 +101,7 @@ app.post('/api/createUser', (req,res) => {
 })
 
 app.post('/api/adminLogin', (req,res) => {
+    console.log('the fuck')
     User.find( {$and : [{username:req.body.username},{password:req.body.password},{isAdmin:true}]}, (err,doc) => {
         
         if (doc.length > 0){
@@ -118,7 +119,7 @@ app.post('/api/adminLogin', (req,res) => {
 })
 
 app.post('/api/vote', (req,res) => {
-    console.log('man wtf :((')
+    
     if (req.body._id == null){
         res.status(400).send({
             errorMessage : 'No Question Id has been entered'

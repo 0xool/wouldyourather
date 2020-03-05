@@ -3,6 +3,8 @@ import UserManager from '../../Manager/userManager.js'
 import Axios from 'axios'
 import userManager from '../../Manager/userManager.js'
 import { Link } from 'react-router-dom'
+import * as STATICS from '../../Const/Const';
+
 
 
 const loginView = (state,handleUserChange,handlePassChange,submitClicked) => {
@@ -77,14 +79,14 @@ class Main extends Component {
             alert('Enter Password')
             return
         }
-        Axios.post('http://localhost:3001/api/adminLogin',{username:this.state.username,password:this.state.password}).then(res => {
+        Axios.post(`${STATICS.SERVER_API_ADDRESS}adminLogin`,{username:this.state.username,password:this.state.password}).then(res => {
             if (res.status == 200){
                 userManager.isLogin = true
                 this.forceUpdate()
             }
         }).catch(err => {
             if (err.response.status == 400){
-                console.log('wasi?')
+                
                 alert('Wrong Username or Password')
             }
         })
