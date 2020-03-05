@@ -77,7 +77,7 @@ class Main extends Component {
             alert('Enter Password')
             return
         }
-        Axios.post('http://localhost:3001/api/adminLogin',{username:this.state.username,password:this.state.password}).then(res => {
+        Axios.post('http://localhost:3001/server/api/adminLogin',{username:this.state.username,password:this.state.password}).then(res => {
             if (res.status == 200){
                 userManager.isLogin = true
                 this.forceUpdate()
