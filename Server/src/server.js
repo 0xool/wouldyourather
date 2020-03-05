@@ -118,6 +118,7 @@ app.post('/api/adminLogin', (req,res) => {
 })
 
 app.post('/api/vote', (req,res) => {
+    console.log('man wtf :((')
     if (req.body._id == null){
         res.status(400).send({
             errorMessage : 'No Question Id has been entered'
