@@ -1,0 +1,291 @@
+.App {
+  text-align: center;
+  height: 100vh;
+  width: 100%;
+}
+
+body {
+  height: 100vh;
+  width: 100%;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.Validate-container {
+  display: grid;
+  grid-template-columns: 2fr 3fr 1fr 3fr 2fr;
+  grid-template-rows: 1fr 2fr 1fr;
+  grid-template-areas: 
+        "t logo logo logo tt"
+        "space1 firstq orspace secondq space"
+        "t1 decline t2 accept t3";
+
+    grid-gap: 4px;
+    z-index: 0;
+    height: 100vh;
+    width: 100%;
+  background-color: #61dafb;
+}
+
+.Validate-first-question{
+  display: flex;
+  background-color: red;
+  color: white;
+  vertical-align: middle;
+  grid-area: firstq;
+  text-align: center;
+  align-items: center;  
+  justify-content: center;
+}
+
+.Validate-second-question{
+  display: flex;
+  background-color: blue;
+  color: white;
+  vertical-align: middle;
+  grid-area: secondq;
+  text-align: center;
+  align-items: center;  
+  justify-content: center;
+}
+
+.Validate-or {
+  background-color: #282c34;
+  color: white;
+  display: flex;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  justify-self: center;
+  align-self: center;
+  grid-area: orspace;
+  align-items: center;  
+  justify-content: center;
+}
+
+.Validate-accept{
+  display: flex;
+  color: white;
+  grid-area: accept;
+  background-color: #00c03a;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  justify-self: center;
+  align-self: center;
+  align-items: center;  
+  justify-content: center;
+}
+
+.Add-accept{
+  display: flex;
+  color: white;
+  grid-area: t2;
+  background-color: #aaadab4f;
+  width: 75px;
+  height: 75px;
+  border-radius: 50%;
+  justify-self: center;
+  align-self: center;
+  align-items: center;  
+  justify-content: center;
+}
+
+.Validate-decline {
+  display: flex;
+  color: white;
+  grid-area: decline;
+  background-color: #c00000;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  justify-self: center;
+  align-self: center;
+  align-items: center;  
+  justify-content: center;
+}
+
+.Validate-logo {
+  display: flex;
+  color: white;
+  grid-area: logo;
+  justify-self: center;
+  align-self: center;
+  align-items: center;  
+  justify-content: center;
+}
+
+.Validate-back {
+  background-color: #282c34;
+  display: flex;
+  color: white;
+  grid-area: t2;
+  width: 100px;
+  height: 50px;
+  justify-self: center;
+  align-self: center;
+  align-items: center;  
+  justify-content: center;
+}
+
+.Main-login-container {
+  background-color: #282c34;
+  display: grid;
+  grid-template-columns: 1fr 50vw 1fr;
+  grid-template-rows: 1fr 45vh 1fr;
+  grid-template-areas: 
+        "t log tt"
+        "space1 login space"
+        "t1 t1 t3";
+    grid-gap: 4px;
+    z-index: 0;
+    height: 100vh;
+    width: 100%;
+}
+
+.Main-login-panel {
+  grid-area: login;
+  background-color: #61dafb;
+  display: grid;
+  grid-template-columns: 1fr 60% 10px 20% 1fr;
+  grid-template-rows: 1fr 25% 25% 3fr;
+  grid-template-areas: 
+        "f free free free fe"
+        "f usernameinput v username fe"
+        "f passwordinput b password fe"
+        "f sub sub sub fe";
+  height: 100%;
+  width: 100%;
+  grid-gap: 4px;
+}
+
+.Main-login-panel-username {
+  display: flex;
+  grid-area: username;
+  background-color: #c00000;
+  align-items: center;  
+  justify-content: center;
+}
+
+.Main-login-panel-password {
+  display: flex;
+  grid-area: password;
+  background-color: #0073c0;
+  align-items: center;  
+  justify-content: center;
+}
+
+.Main-login-panel-username-input {
+  display: flex;
+  grid-area: usernameinput;
+  background-color: #26c000;
+  align-items: center;  
+  justify-content: center;
+}
+
+.Main-login-panel-password-input {
+  display: flex;
+  grid-area: passwordinput;
+  background-color: #c00096;
+  align-items: center;  
+  justify-content: center;
+}
+
+.Main-login-logo {
+  color: white;
+  grid-area: log;
+  font-size: 50px;
+  align-items: center;  
+  justify-content: center;
+  align-self: center;
+  justify-self: center;
+}
+
+.Main-login-panel-submit {
+  display: flex;
+  grid-area: sub;
+  background-color: #c09300;
+  align-items: center;  
+  justify-content: center;
+}
+
+.submit {
+  height: 100%;
+  width: 100%;
+}
+
+.Main-view-login-container {
+  background-color: #282c34;
+  display: grid;
+  grid-template-columns: 1fr 150px 25px 150px 1fr;
+  grid-template-rows: 1fr 100px 1fr;
+  grid-template-areas: 
+        "t d d d t1"
+        "t addq space checkq t1"
+        "t f f f t1";
+
+    grid-gap: 4px;
+    z-index: 0;
+    height: 100vh;
+    width: 100%;
+}
+.Main-view-login-logo {
+  color: white;
+  grid-area: free;
+  font-size: 50px;
+  align-items: center;  
+  justify-content: center;
+}
+
+.Main-view-login-add-question {
+  display: flex;
+  grid-area: addq;
+  background-color: #c00096;
+  align-items: center;  
+  justify-content: center;
+  
+  justify-self: center;
+}
+
+.Main-view-login-check-question {
+  display: flex;
+  grid-area: checkq;
+  background-color: #c00096;
+  align-items: center;  
+  justify-content: center;
+  
+  justify-self: center;
+}
