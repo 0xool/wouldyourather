@@ -32,7 +32,7 @@ export default class Database {
 
 
    
-    initDB(finishedLoading) {
+    initDB() {
       console.log(questionDataJSON.length)
         let db;
         return new Promise((resolve) => {
@@ -58,7 +58,7 @@ export default class Database {
                       console.log("Received error: ", error);
                       console.log("Database not yet ready ... populating data");
                       db.transaction((tx) => {
-                          tx.executeSql('CREATE TABLE IF NOT EXISTS Question (questionId, firstQuestion, secondQuestion,firstQuestionVoteNumber INTEGER,secondQuestionVoteNumber INTEGER)');
+                          tx.executeSql('CREATE TABLE IF NOT EXISTS Question (questionId primary key, firstQuestion, secondQuestion,firstQuestionVoteNumber INTEGER,secondQuestionVoteNumber INTEGER, voted INTEGER)');
                       }).then(() => {
                           console.log("Table created successfully");        
                           for (var i = 0;i < questionDataJSON.length;i++){                                                                              
@@ -67,7 +67,8 @@ export default class Database {
                                 firstQuestion: questionDataJSON[i].firstQuestion,
                                 secondQuestion: questionDataJSON[i].secondQuestion,
                                 firstQuestionVoteNumber: questionDataJSON[i].firstQuestionVoteNumber,
-                                secondQuestionVoteNumber: questionDataJSON[i].secondQuestionVoteNumber
+                                secondQuestionVoteNumber: questionDataJSON[i].secondQuestionVoteNumber,
+                                voted : 0                  
                             }
                             this.addQuestion(data).then((result) => {
                                 console.log('result')
@@ -116,7 +117,7 @@ export default class Database {
           const questions = [];
           this.initDB().then((db) => {
             db.transaction((tx) => {
-              tx.executeSql('SELECT q.questionId,q.firstQuestion, q.secondQuestion,q.firstQuestionVoteNumber,q.secondQuestionVoteNumber FROM Question q', []).then(([tx,results]) => {
+              tx.executeSql('SELECT q.questionId,q.firstQuestion, q.secondQuestion,q.firstQuestionVoteNumber,q.secondQuestionVoteNumber,q.voted FROM Question q', []).then(([tx,results]) => {
                 console.log("Query completed");
                 var len = results.rows.length;
                 for (let i = 0; i < len; i++) {
@@ -144,14 +145,48 @@ export default class Database {
         });  
       }
 
-      addQuestion(q) {
+      listUnvotedQuestions() {
         
+        return new Promise((resolve) => {
+          const questions = [];
+          this.initDB().then((db) => {
+            db.transaction((tx) => {
+              tx.executeSql('SELECT q.questionId,q.firstQuestion, q.secondQuestion,q.firstQuestionVoteNumber,q.secondQuestionVoteNumber,q.voted FROM Question q WHERE voted = 0', []).then(([tx,results]) => {
+                console.log("Query completed");
+                var len = results.rows.length;
+                for (let i = 0; i < len; i++) {
+                  let row = results.rows.item(i);
+                  console.log(`Quesiton ID: ${row.quetionId}`)
+                  const { questionId, firstQuestion , secondQuestion , firstQuestionVoteNumber, secondQuestionVoteNumber,voted } = row;
+                  questions.push({
+                    questionId, 
+                    firstQuestion ,
+                    secondQuestion ,
+                    firstQuestionVoteNumber,
+                    secondQuestionVoteNumber,
+                    voted 
+                  });
+                }
+                resolve(questions);
+              });
+            }).then((result) => {
+              this.closeDatabase(db);
+            }).catch((err) => {
+              console.log(err);
+            });
+          }).catch((err) => {
+            console.log(err);
+          });
+        });  
+      }
+
+      addQuestion(q) {        
         return new Promise((resolve) => {
             
           this.initDB().then((db) => {
             
             db.transaction((tx) => {
-              tx.executeSql('INSERT INTO Question VALUES (?, ?, ?, ?, ?)', [q.questionId, q.firstQuestion, q.secondQuestion, q.firstQuestionVoteNumber, q.secondQuestionVoteNumber]).then(([tx, results]) => {
+              tx.executeSql('INSERT INTO Question VALUES (?, ?, ?, ?, ? ,? )', [q.questionId, q.firstQuestion, q.secondQuestion, q.firstQuestionVoteNumber, q.secondQuestionVoteNumber,q.voted]).then(([tx, results]) => {
                 resolve(results);
               });
             }).then((result) => {
@@ -188,7 +223,25 @@ export default class Database {
         return new Promise((resolve) => {
           this.initDB().then((db) => {
             db.transaction((tx) => {
-              tx.executeSql('UPDATE Question SET firstQuestionVoteNumber = ? , secondQuestionVoteNumber = ? WHERE questionId = ?', [question.firstQuestionVoteNumber, question.secondQuestionVoteNumber, question.questionId]).then(([tx, results]) => {
+              tx.executeSql('UPDATE Question SET firstQuestionVoteNumber = ? , secondQuestionVoteNumber = ?,voted = ? WHERE questionId = ?', [question.firstQuestionVoteNumber, question.secondQuestionVoteNumber, 1 ,question.questionId,]).then(([tx, results]) => {
+                resolve(results);
+              });
+            }).then((result) => {
+              this.closeDatabase(db);
+            }).catch((err) => {
+              console.log(err);
+            });
+          }).catch((err) => {
+            console.log(err);
+          });
+        });  
+      }
+
+      updateQuestionVoteNumberForServerUpdate(id, question) {
+        return new Promise((resolve) => {
+          this.initDB().then((db) => {
+            db.transaction((tx) => {
+              tx.executeSql('UPDATE Question SET firstQuestionVoteNumber = ? , secondQuestionVoteNumber = ?,voted = ? WHERE questionId = ?', [question.firstQuestionVoteNumber, question.secondQuestionVoteNumber, 0 ,question.questionId,]).then(([tx, results]) => {
                 resolve(results);
               });
             }).then((result) => {
