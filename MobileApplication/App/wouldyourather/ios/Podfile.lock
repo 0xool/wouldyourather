@@ -9,6 +9,9 @@ PODS:
     - React-Core (= 0.61.5)
     - React-jsi (= 0.61.5)
     - ReactCommon/turbomodule/core (= 0.61.5)
+  - Flurry-iOS-SDK/FlurryConfig (10.2.0):
+    - Flurry-iOS-SDK/FlurrySDK
+  - Flurry-iOS-SDK/FlurrySDK (10.2.0)
   - Folly (2018.10.22.00):
     - boost-for-react-native
     - DoubleConversion
@@ -182,6 +185,12 @@ PODS:
     - React-cxxreact (= 0.61.5)
     - React-jsi (= 0.61.5)
   - React-jsinspector (0.61.5)
+  - react-native-flurry-sdk (5.3.0):
+    - react-native-flurry-sdk/FlurrySDK (= 5.3.0)
+  - react-native-flurry-sdk/FlurrySDK (5.3.0):
+    - Flurry-iOS-SDK/FlurryConfig (~> 10.2.0)
+    - Flurry-iOS-SDK/FlurrySDK (~> 10.2.0)
+    - React
   - react-native-safe-area-context (0.7.3):
     - React
   - react-native-sqlite-storage (4.1.0):
@@ -221,11 +230,15 @@ PODS:
     - React-cxxreact (= 0.61.5)
     - React-jsi (= 0.61.5)
     - ReactCommon/jscallinvoker (= 0.61.5)
+  - ReactNativeNavigation (6.1.2):
+    - React
+    - React-RCTImage
+    - React-RCTText
   - RNCAsyncStorage (1.8.1):
     - React
   - RNFS (2.16.6):
     - React
-  - RNGestureHandler (1.6.0):
+  - TSTapsell (0.1.0):
     - React
   - Yoga (1.14.0)
 
@@ -246,6 +259,7 @@ DEPENDENCIES:
   - React-jsi (from `../node_modules/react-native/ReactCommon/jsi`)
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
+  - react-native-flurry-sdk (from `../node_modules/react-native-flurry-sdk/ios`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-sqlite-storage (from `../node_modules/react-native-sqlite-storage`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -259,14 +273,16 @@ DEPENDENCIES:
   - React-RCTVibration (from `../node_modules/react-native/Libraries/Vibration`)
   - ReactCommon/jscallinvoker (from `../node_modules/react-native/ReactCommon`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
+  - ReactNativeNavigation (from `../node_modules/react-native-navigation`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
   - RNFS (from `../node_modules/react-native-fs`)
-  - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - TSTapsell (from `../node_modules/react-native-tapsell/ios`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
   trunk:
     - boost-for-react-native
+    - Flurry-iOS-SDK
 
 EXTERNAL SOURCES:
   DoubleConversion:
@@ -297,6 +313,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsiexecutor"
   React-jsinspector:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
+  react-native-flurry-sdk:
+    :path: "../node_modules/react-native-flurry-sdk/ios"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-sqlite-storage:
@@ -321,12 +339,14 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/Libraries/Vibration"
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
+  ReactNativeNavigation:
+    :path: "../node_modules/react-native-navigation"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-community/async-storage"
   RNFS:
     :path: "../node_modules/react-native-fs"
-  RNGestureHandler:
-    :path: "../node_modules/react-native-gesture-handler"
+  TSTapsell:
+    :path: "../node_modules/react-native-tapsell/ios"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -335,6 +355,7 @@ SPEC CHECKSUMS:
   DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
   FBLazyVector: aaeaf388755e4f29cd74acbc9e3b8da6d807c37f
   FBReactNativeSpec: 118d0d177724c2d67f08a59136eb29ef5943ec75
+  Flurry-iOS-SDK: ca3540dd9607a05a8a13a7dd36dfffdd5e0fd0ef
   Folly: 30e7936e1c45c08d884aa59369ed951a8e68cf51
   glog: 1f3da668190260b06b429bb211bfbee5cd790c28
   RCTRequired: b153add4da6e7dbc44aebf93f3cf4fcae392ddf1
@@ -346,8 +367,9 @@ SPEC CHECKSUMS:
   React-jsi: cb2cd74d7ccf4cffb071a46833613edc79cdf8f7
   React-jsiexecutor: d5525f9ed5f782fdbacb64b9b01a43a9323d2386
   React-jsinspector: fa0ecc501688c3c4c34f28834a76302233e29dc0
-  react-native-safe-area-context: 8260e5157617df4b72865f44006797f895b2ada7
-  react-native-sqlite-storage: bb10beb2407e5fc21f3f1bcd86bacbfd6edcc818
+  react-native-flurry-sdk: 99e1dfe11e770c0e54a546043489f174f5f22241
+  react-native-safe-area-context: e200d4433aba6b7e60b52da5f37af11f7a0b0392
+  react-native-sqlite-storage: f06bfba10f67f989c00b6a699b9c2b80a816edbe
   React-RCTActionSheet: 600b4d10e3aea0913b5a92256d2719c0cdd26d76
   React-RCTAnimation: 791a87558389c80908ed06cc5dfc5e7920dfa360
   React-RCTBlob: d89293cc0236d9cb0933d85e430b0bbe81ad1d72
@@ -358,11 +380,12 @@ SPEC CHECKSUMS:
   React-RCTText: 9ccc88273e9a3aacff5094d2175a605efa854dbe
   React-RCTVibration: a49a1f42bf8f5acf1c3e297097517c6b3af377ad
   ReactCommon: 198c7c8d3591f975e5431bec1b0b3b581aa1c5dd
-  RNCAsyncStorage: 00bdf63f7f1e0f11d3323533dba4f222e58bf092
+  ReactNativeNavigation: c356b87a81bd53b30908a2e1baf3466441e3372d
+  RNCAsyncStorage: e0dd7c8a36543b4ef84969acd9f8aceba3a92dc2
   RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
-  RNGestureHandler: dde546180bf24af0b5f737c8ad04b6f3fa51609a
+  TSTapsell: 750b0a9719023cd387b1dcdac76f932defd2b6bc
   Yoga: f2a7cd4280bfe2cca5a7aed98ba0eb3d1310f18b
 
-PODFILE CHECKSUM: 0dc346ee164b7e720e8be898f06d230a14a055f6
+PODFILE CHECKSUM: ed88fdeaefa3056f4981a0b9c717a52312eb58b6
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.9.1

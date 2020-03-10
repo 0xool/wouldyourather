@@ -3,6 +3,7 @@ import {
     SafeAreaView,
     StyleSheet,
     View,
+    Image,
     Text,
     StatusBar,
     TouchableHighlight,
@@ -21,6 +22,10 @@ import axios from 'react-native-axios'
 import AsyncStorage from '@react-native-community/async-storage';
 import Drawer from 'react-native-drawer'
 import SMC from './SideMenuComponent/SideMenuComponent'
+import Tapsell, { BannerAd } from "react-native-tapsell";
+import { ZONE_IDS } from '../../Utilities/Constants';
+const menuImage = require('../../Images/menu.png')
+
 
 
 const questionDataJSON = require('../../Database/questions.json');
@@ -103,6 +108,7 @@ class MainGamePage extends Component {
     constructor() {
         super()
         this.state = {
+
             currentQuestion: null,
             viewState: "vote",
             questions: [],
@@ -111,14 +117,36 @@ class MainGamePage extends Component {
             preLoadingView: true,
             backendChecked: false,
             serverData:[],
+            adId: '',
+            adCounter: 0,
         }
     
         this._onPressFirstQuestionButton = this._onPressFirstQuestionButton.bind(this)
         this._onPressSecondQuestionButton = this._onPressSecondQuestionButton.bind(this)
         this.getCurrentFirstQuestionPrecentage = this.getCurrentFirstQuestionPrecentage.bind(this)
         this.getCurrentSecondQuestionPrecentage = this.getCurrentSecondQuestionPrecentage.bind(this)
+        this.adCounterCheckup = this.adCounterCheckup.bind(this)
         this.getQuestions = this.getQuestions.bind(this)
         this.databaseIsReady = this.databaseIsReady.bind(this)
+
+        Tapsell.setRewardListener((zoneId , adId , completed , rewarded) => {
+            // onAdShowFinished
+            console.log(adId);
+            
+            console.log("onAdShowFinished");
+        });
+
+        Tapsell.requestAd(ZONE_IDS.INTERSTITIAL_VIDEO,true,(zoneId,adId) => {
+            this.setState({adId:adId})
+            console.log('ffff')            
+        },() => {console.log('no ad');
+        } , () => {console.log('no network');
+        } , (zoneId,err)=>{console.log('error:');
+        console.log(err)
+        } , () => {console.log('====================================');
+        console.log('expired');
+        console.log('====================================');})
+
         //load data from db and show
         getData = async () => {
             try {
@@ -166,6 +194,7 @@ class MainGamePage extends Component {
     componentDidMount () {
         // this.saveQuestion()
         // db.importTest()
+
         setTimeout(() => {
             this.getQuestions()
             setTimeout(() => {
@@ -281,7 +310,6 @@ getQuestions() {
       }
 
     _onPressFirstQuestionButton() {       
-        this._drawer.open()
         switch (this.state.viewState) {
             case "vote":          
                 if (this.state.currentQuestion == null){
@@ -300,6 +328,7 @@ getQuestions() {
                     })              
                 break;
             case "voted":
+                this.adCounterCheckup()
                 if (this.state.questions.length == 0){
                     this.setState({currentQuestion:null})
                     this.setState({viewState:'finished'})
@@ -316,6 +345,23 @@ getQuestions() {
             default:
 
                 break;
+        }
+    }
+
+    adCounterCheckup () {
+        if (this.state.adCounter == 5){
+            this.setState({adCounter:0})
+            //show add
+            Tapsell.showAd({
+                ad_id: this.state.adId,
+                back_disabled:  false,
+                immersive_mode: false,
+                rotation_mode: Tapsell.ROTATION_UNLOCKED,
+                show_exit_dialog: true
+            })
+        }else{
+            var counter = this.state.adCounter + 1
+            this.setState({adCounter:counter})
         }
     }
 
@@ -337,6 +383,7 @@ getQuestions() {
                 })             
                 break;
             case "voted":
+                this.adCounterCheckup()
                 if (this.state.questions.length == 0){
                     this.setState({currentQuestion:null})
                     this.setState({viewState:'finished'})
@@ -439,15 +486,21 @@ getQuestions() {
                 main: { opacity:(2-ratio)/2 }
             })}
             >
+                
             <View  style = { {backgroundColor:'#292929'}}>
                     <StatusBar style = { {backgroundColor:'#292929'}} barStyle="dark-content" />
                     <SafeAreaView>
                         <View style={styles.gameView}>
                             
-                            <View style={styles.headerView}><Text style={{fontSize:25,color:'white'}}>کدوم ترجیح میدی؟</Text></View>
+                            <View style={styles.headerView}>
+                                <TouchableHighlight onPress={() => {this._drawer.open()}} style={{height:50,width:50,position:'absolute',top:0,right:0,alignContent:'center',justifyContent:'center'}}>
+                                    <Image style={{width:25,height:25}} source={menuImage}></Image>
+                                </TouchableHighlight>
+                                <Text style={{fontSize:25,color:'white'}}> کدومش؟</Text>
+                            </View>
                             
                             <TouchableHighlight style={styles.firstQuestionView} onPressIn={this._onPressFirstQuestionButton}  underlayColor="#aaadab4f" >
-            <View ><Text style={styles.questionText}>{this.getCurrentFirstQuestion()}</Text><Text style={styles.questionText}>{this.getCurrentFirstQuestionPrecentage()}</Text></View>
+                                <View ><Text style={styles.questionText}>{this.getCurrentFirstQuestion()}</Text><Text style={styles.questionText}>{this.getCurrentFirstQuestionPrecentage()}</Text></View>
                             </TouchableHighlight>
                             <View style={styles.midLineView}>
                                 <View style={styles.orView}>
@@ -457,12 +510,18 @@ getQuestions() {
                             <TouchableHighlight style={styles.secondQuestionView} onPressIn={this._onPressSecondQuestionButton}  underlayColor="#aaadab4f" >
                                 <View><Text style={styles.questionText}>{this.getCurrentSecondQuestion()}</Text><Text style={styles.questionText}>{this.getCurrentSecondQuestionPrecentage()}</Text></View>
                             </TouchableHighlight>
-                            <View style={styles.footerView}></View>
+                            <View style={styles.footerView}>
+                                <BannerAd
+                                    zoneId={ZONE_IDS.STANDARD_BANNER}
+                                    bannerType={Tapsell.BANNER_320x50}
+                                />
+                            </View>
                             
                         </View>
                     </SafeAreaView>
                 
                 </View>
+
             </Drawer>
         )
     }

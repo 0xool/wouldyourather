@@ -16,11 +16,14 @@ import {
         justifyContent: 'center',
         alignItems: 'center',
     }
+import {goHome, goAddQuestion} from '../../../Screens/Navigation/Navigation'
+
 class SideMenuComponent extends Component {
 
 
     addQuestionMenuBtnClicked ()
     {
+           goAddQuestion()
            
     }
 
