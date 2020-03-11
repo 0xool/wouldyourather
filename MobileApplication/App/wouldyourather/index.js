@@ -14,9 +14,7 @@ import {runFlurry} from './src/Manager/FlurryManager'
 runFlurry()
 Tapsell.initialize(TAPSELL_KEY);
 registerScreens();
-
-
-
+global.firstLoad = true
 Navigation.events().registerAppLaunchedListener(() => {
   Navigation.setRoot({
     root: {

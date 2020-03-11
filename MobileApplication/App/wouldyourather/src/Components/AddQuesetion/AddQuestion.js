@@ -25,6 +25,8 @@ import Flurry from 'react-native-flurry-sdk'
 import axios from 'react-native-axios'
 import {goHome, goAddQuestion} from '../../Screens/Navigation/Navigation'
 
+import { SERVER_API_ADDRESS } from '../../Utilities/Constants';
+
 var plusImage = require('../../Images/plus.png')
 var backImage = require('../../Images/back.png')
 
@@ -130,7 +132,7 @@ class AddQuestion extends Component {
 
     submit (){
         Flurry.logEvent('Add Question Event');
-        axios.post('http://localhost:3001/api/postQuestion',{firstQuestion:this.state.firstQuestionInput,secondQuestion:this.state.secondQuestionInput}).then(
+        axios.post(`${SERVER_API_ADDRESS}postQuestion`,{firstQuestion:this.state.firstQuestionInput,secondQuestion:this.state.secondQuestionInput}).then(
             Alert.alert(
                 'سوال اضافه شد',
                 'سوال شما با موفقیت ثبت شد!',

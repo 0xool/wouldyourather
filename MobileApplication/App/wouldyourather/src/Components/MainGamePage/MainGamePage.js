@@ -20,14 +20,16 @@ import {
 import Database from '../../Database/Database'
 import axios from 'react-native-axios'
 import AsyncStorage from '@react-native-community/async-storage';
+
 import Drawer from 'react-native-drawer'
 import SMC from './SideMenuComponent/SideMenuComponent'
 import Tapsell, { BannerAd } from "react-native-tapsell";
-import { ZONE_IDS } from '../../Utilities/Constants';
+
+import { ZONE_IDS,SERVER_API_ADDRESS } from '../../Utilities/Constants';
+import Flurry from 'react-native-flurry-sdk';
+import {getAdStatus,saveAdStatus,saveOfflineVote,getOfflineVote} from '../../Manager/UserManager'
+
 const menuImage = require('../../Images/menu.png')
-
-
-
 const questionDataJSON = require('../../Database/questions.json');
 
 const db = new Database();  
@@ -119,6 +121,7 @@ class MainGamePage extends Component {
             serverData:[],
             adId: '',
             adCounter: 0,
+            adStatus:false,
         }
     
         this._onPressFirstQuestionButton = this._onPressFirstQuestionButton.bind(this)
@@ -127,7 +130,7 @@ class MainGamePage extends Component {
         this.getCurrentSecondQuestionPrecentage = this.getCurrentSecondQuestionPrecentage.bind(this)
         this.adCounterCheckup = this.adCounterCheckup.bind(this)
         this.getQuestions = this.getQuestions.bind(this)
-        this.databaseIsReady = this.databaseIsReady.bind(this)
+        this.sendVote = this.sendVote.bind(this)
 
         Tapsell.setRewardListener((zoneId , adId , completed , rewarded) => {
             // onAdShowFinished
@@ -154,16 +157,33 @@ class MainGamePage extends Component {
               if(value !== null) {
                 // value previously stored
                 if (value == 'false') {
-                    console.log('gfg2')
+                    
                     this.setState({backendChecked:false})
                 }else if (value == 'true'){
-                    console.log('gfg3')
+
+                    try {
+                        var offlineVotes = await AsyncStorage.getItem('offlineVote')
+                        var array = JSON.parse(offlineVotes)
+                        
+                        if (offlineVotes != null ){                        
+                            for (vote in array) {
+                                axios.post(`${SERVER_API_ADDRESS}vote`,{_id:vote.id,voteNumber:vote.voteNumber}).then(
+                                    ).catch(err => {
+                                        console.log(err)
+                                    }) 
+                            }
+                        }
+                    } catch (error) {
+                        
+                    }
+                    
                     this.setState({backendChecked:true})
                     console.log(thi.state.backendChecked)
                 }
                 
         
               }else {
+                  console.log('ok bitch')
                     saveBackendCheck()
               }
             } catch(e) {
@@ -172,21 +192,38 @@ class MainGamePage extends Component {
             }
           }         
         getData()
-        
-        axios.get(`http://localhost:3001/api/getAllQuestion`)
-                    .then(response => {
-                        this.setState({serverData:response.data})
-                        console.log(response.data)
-                        saveBackendCheck('true')
-                        this.setState({backendChecked:true})
-                        return response.data
-                    }).catch((err) => {
+        if(global.firstLoad ){
+            axios.get(`${SERVER_API_ADDRESS}getAllQuestion`)
+                        .then(response => {
+                            this.setState({serverData:response.data})
+                            console.log(response.data)
+                            saveBackendCheck('true')
+                            this.setState({backendChecked:true})
+                            return response.data
+                        }).catch((err) => {
 
-                    })
+                        })
+                }
 
 
-        db.initDB().then( () => {
+        db.initDB(() => {
+            this.getQuestions()
+            setTimeout(() => {
+                this.setState({preLoadingView:false})
+                this.setState({isLoading:false})
+
+                
+                setTimeout(() => {
+                    if(global.firstLoad ){
+                        this.updateDatabaseData()
+                        // db.questionExists('e68f8257187d11eed108e9f')
+                    }
+                    global.firstLoad = false
+                },4000)
+            },1500)
+        }).then( () => {
             //load data from back end and update
+            console.log('maybe just maybe')
         })
 
     }
@@ -195,27 +232,18 @@ class MainGamePage extends Component {
         // this.saveQuestion()
         // db.importTest()
 
-        setTimeout(() => {
-            this.getQuestions()
-            setTimeout(() => {
-                this.updateDatabaseData()
-            },2000)
-        }, 600);
+        var adStatus = getAdStatus()
+        this.setState({adStatus:adStatus})
+
         
          
     }
 
-    
-
-    databaseIsReady()
-     {
-
-     }   
+    setAdStatus () {
+        saveAdStatus()
+    }
      
      updateDatabaseData () {
-            this.setState({isLoading:false})
-            console.log('mfgo')
-            console.log(this.state.questions)
             
             var databaseQ = this.state.questions
             var updateQ = this.state.serverData
@@ -230,7 +258,7 @@ class MainGamePage extends Component {
                 for ( j = 0; j < databaseQ.length; j++ ){
                     var checkID = databaseQ[j].questionId
 
-                    console.log(`biacth ${id} + ${checkID}`)
+                    // console.log(`biacth ${id} + ${checkID}`)
                     if (checkID == id){
                         //update
                         var voted = databaseQ[j].voted
@@ -240,20 +268,13 @@ class MainGamePage extends Component {
                     }
                 }
                 if (addNewData){
-                    console.log(`this id should be one ${id}`)
                     this.saveQuestion(id,firstQuestion,secondQuestion,firstNumber,secondNumber)
-                    var newData = {questionId:updateQ[i]._id,firstQuestionVoteNumber:updateQ[i].firstQuestionVoteNumber,secondQuestionVoteNumber:updateQ[i].secondQuestionVoteNumber,firstQuestion:updateQ[i].firstQuestion,secondQuestion:updateQ[i].secondQuestion,voted:0}
-                    databaseQ.push(newData)
-                    console.log(databaseQ)
                 }
             }
-
-            this.setState({questions:databaseQ,preLoadingView:false})
         
      }
 
      updateQuestionNumbers (id,firstNumber,secondNumber) {
-         console.log(id,firstNumber,secondNumber)
         let data = {
             questionId: id,
             firstQuestionVoteNumber: firstNumber,
@@ -276,11 +297,9 @@ saveQuestion(questionId,firstQuestion,secondQuestion,firstQuestionVoteNumber,sec
         voted:0,
     }
     db.addQuestion(data).then((result) => {
-        console.log('result')
         console.log(result);
 
     }).catch((err) => {
-        console.log('error')
         console.log(err);
     })
     }
@@ -290,7 +309,7 @@ getQuestions() {
     db.listUnvotedQuestions(questionDataJSON).then((data) => {
         questions = data;
         this.setState({currentQuestion:questions[0],questions:questions})
-        
+        console.log(`mother fucker ${this.state.currentQuestion.questionId}`)
     }).catch((err) => {
         console.log(err);
     })
@@ -309,9 +328,9 @@ getQuestions() {
         })
       }
 
-    _onPressFirstQuestionButton() {       
+    _onPressFirstQuestionButton() {   
         switch (this.state.viewState) {
-            case "vote":          
+            case "vote":                         
                 if (this.state.currentQuestion == null){
                     this.setState({viewState:'finished'})
                     break
@@ -320,12 +339,7 @@ getQuestions() {
                 question.firstQuestionVoteNumber += 1
                 this.setState({viewState:"voted",currentQuestion:question})
                 this.updateQuestionVoteNumber()  
-                console.log('GTFO')
-                console.log(this.state.currentQuestion)
-                axios.post('http://localhost:3001/api/vote',{_id:this.state.currentQuestion.questionId,voteNumber:1}).then(
-                    ).catch(err => {
-                        console.log(err)
-                    })              
+                this.sendVote(1)            
                 break;
             case "voted":
                 this.adCounterCheckup()
@@ -348,8 +362,21 @@ getQuestions() {
         }
     }
 
+    sendVote (voteNumber) {
+        if (this.state.backendChecked){
+            console.log(`bitchAss + ${this.state.currentQuestion.questionId}`)
+            axios.post(`${SERVER_API_ADDRESS}vote`,{_id:this.state.currentQuestion.questionId,voteNumber:voteNumber}).then(
+                ).catch(err => {
+                    console.log(`maybe ${err}`)
+                }) 
+        }else{
+            console.log('bitchAss2')
+            saveOfflineVote({id:this.state.currentQuestion.questionId,voteNumber:voteNumber})
+        }
+    }
+
     adCounterCheckup () {
-        if (this.state.adCounter == 5){
+        if (this.state.adCounter == 5 && this.state.adStatus){
             this.setState({adCounter:0})
             //show add
             Tapsell.showAd({
@@ -377,10 +404,7 @@ getQuestions() {
                 question.secondQuestionVoteNumber += 1                
                 this.setState({viewState:"voted",currentQuestion:question})
                 this.updateQuestionVoteNumber()
-                axios.post('http://localhost:3001/api/vote',{_id:this.state.currentQuestion.questionId,voteNumber:2}).then(
-                ).catch(err => {
-                    console.log(err)
-                })             
+                this.sendVote(2)           
                 break;
             case "voted":
                 this.adCounterCheckup()

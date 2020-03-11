@@ -2,10 +2,10 @@ import SQLite from "react-native-sqlite-storage";
 SQLite.DEBUG(true);
 SQLite.enablePromise(true);
 
-const database_name = "Reactoffline.db";
+const database_name = "kodoomesh.db";
 const database_version = "1.0";
 const database_displayname = "SQLite React Offline Database";
-const database_size = 200000;
+const database_size = 2000000;
 const questionDataJSON = require('./questions.json');
 
 
@@ -13,26 +13,10 @@ export default class Database {
    
   
 
-    importTest () {
-
-        config_database = SQLite.openDatabase({name : "testDB", createFromLocation : 1}, () => {console.log('maybe just maybe')},() => {console.log('error')});
-        let mainDb = 
-        SQLite.openDatabase(
-            database_name,
-            database_version,
-            database_displayname,
-            database_size
-          )
-            .then(DB => {
-                console.log('close but not too close')
-                DB.attach('testDB',database_name, () => {console.log('attached'), () => {console.log('denied')}})
-            }).catch(err => {console.log(err)})
-
-    }
 
 
    
-    initDB() {
+    initDB(databaseLoadingComplete) {
       console.log(questionDataJSON.length)
         let db;
         return new Promise((resolve) => {
@@ -53,16 +37,15 @@ export default class Database {
                   console.log("Database OPEN");
                   db.executeSql('SELECT 1 FROM Question LIMIT 1').then(() => {
                       console.log("Database is ready ... executing query ...");
-                      
+                      databaseLoadingComplete()
                   }).catch((error) =>{
                       console.log("Received error: ", error);
                       console.log("Database not yet ready ... populating data");
                       db.transaction((tx) => {
                           tx.executeSql('CREATE TABLE IF NOT EXISTS Question (questionId primary key, firstQuestion, secondQuestion,firstQuestionVoteNumber INTEGER,secondQuestionVoteNumber INTEGER, voted INTEGER)');
-                      }).then(() => {
-                          console.log("Table created successfully");        
                           for (var i = 0;i < questionDataJSON.length;i++){                                                                              
-                            let data = {
+                            let q = {
+                                
                                 questionId: questionDataJSON[i].questionId,
                                 firstQuestion: questionDataJSON[i].firstQuestion,
                                 secondQuestion: questionDataJSON[i].secondQuestion,
@@ -70,15 +53,11 @@ export default class Database {
                                 secondQuestionVoteNumber: questionDataJSON[i].secondQuestionVoteNumber,
                                 voted : 0                  
                             }
-                            this.addQuestion(data).then((result) => {
-                                console.log('result')
-                                console.log(result);
-                                
-                            }).catch((err) => {
-                                console.log('error')
-                                console.log(err);
-                            })
+                            tx.executeSql('INSERT INTO Question VALUES (?, ?, ?, ?, ? ,? )', [q.questionId, q.firstQuestion, q.secondQuestion, q.firstQuestionVoteNumber, q.secondQuestionVoteNumber,q.voted])
                           } 
+                      }).then((tx,result) => {
+                          console.log("Table created successfully");        
+                          databaseLoadingComplete()
                                                        
                       }).catch(error => {
                           console.log(error);
@@ -122,8 +101,11 @@ export default class Database {
                 var len = results.rows.length;
                 for (let i = 0; i < len; i++) {
                   let row = results.rows.item(i);
-                  console.log(`Quesiton ID: ${row.quetionId}`)
-                  const { questionId, firstQuestion , secondQuestion , firstQuestionVoteNumber, secondQuestionVoteNumber } = row;
+                  const questionId = JSON.stringify(row.questionId)
+                  const firstQuestion = JSON.stringify(row.firstQuestion)
+                  const secondQuestion = JSON.stringify(row.secondQuestion)
+                  const firstQuestionVoteNumber = JSON.stringify(row.firstQuestionVoteNumber)
+                  const secondQuestionVoteNumber = JSON.stringify(row.secondQuestionVoteNumber)
                   questions.push({
                     questionId, 
                     firstQuestion ,
@@ -156,8 +138,8 @@ export default class Database {
                 var len = results.rows.length;
                 for (let i = 0; i < len; i++) {
                   let row = results.rows.item(i);
-                  console.log(`Quesiton ID: ${row.quetionId}`)
-                  const { questionId, firstQuestion , secondQuestion , firstQuestionVoteNumber, secondQuestionVoteNumber,voted } = row;
+                  const {  firstQuestion , secondQuestion , firstQuestionVoteNumber, secondQuestionVoteNumber,voted } = row;
+                  const questionId = row.questionId.toString()
                   questions.push({
                     questionId, 
                     firstQuestion ,
@@ -187,6 +169,27 @@ export default class Database {
             
             db.transaction((tx) => {
               tx.executeSql('INSERT INTO Question VALUES (?, ?, ?, ?, ? ,? )', [q.questionId, q.firstQuestion, q.secondQuestion, q.firstQuestionVoteNumber, q.secondQuestionVoteNumber,q.voted]).then(([tx, results]) => {
+                resolve(results);
+              });
+            }).then((result) => {
+              this.closeDatabase(db);
+            }).catch((err) => {
+              console.log(err);
+            });
+          }).catch((err) => {
+            console.log(err);
+          });
+        });  
+      }
+
+      questionExists(id) {        
+        return new Promise((resolve) => {
+            
+          this.initDB().then((db) => {
+            
+            db.transaction((tx) => {
+              tx.executeSql('SELECT EXISTS(SELECT 1 FROM Question WHERE questionId=? )', [id]).then(([tx, results]) => {
+                console.log(`look here bitch :D ${results.rows[0]}`)
                 resolve(results);
               });
             }).then((result) => {

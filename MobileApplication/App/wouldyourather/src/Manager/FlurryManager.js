@@ -22,10 +22,12 @@ export function runFlurry () {
     new Flurry.Builder()
     .withCrashReporting(true)
     .withLogEnabled(true)
-    .withLogLevel(2)
+    .withLogLevel(Flurry.LogLevel.VERBOSE)
+    .withIncludeBackgroundSessionsInMetrics(true)
+    .withTVSessionReportingInterval(5)
+    .withContinueSessionMillis(100000)
     .build(FLURRY_ANDROID_API_KEY, FLURRY_IOS_API_KEY);
-
-    console.log('this shit!!')
+    
 }
 
 // Set user properties.
