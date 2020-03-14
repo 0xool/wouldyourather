@@ -191,7 +191,7 @@ app.get('/api/getUnverifiedQuestions',(req,res) => {
 
 app.get('/api/getQuestionById' , (req,res) => {
     let id = req.query.id
-
+    console.log(id)
     Question.findById(id , (err,doc) => {
         if (err) return res.status(400).send(err)
         res.send(doc)
@@ -199,6 +199,7 @@ app.get('/api/getQuestionById' , (req,res) => {
 })
 
 app.get('/api/getAllQuestion' , (req,res) => {
+    console.log("mother fucker")
     Question.find().exec((err,doc) => 
     {
         if (err){
@@ -208,6 +209,37 @@ app.get('/api/getAllQuestion' , (req,res) => {
     })
 })
 
+app.get('/api/getAllVerifiedQuestion' , (req,res) => {
+    Question.find({isVerified:{$eq: true}} , (err,doc) => {
+        if (err) return res.status(400).send(err)
+        res.send(doc)
+    })
+})
+
+app.get('/api/getBatchQuestionUpdate' , (req,res) => {
+    var arr = JSON.parse(req.query.questionBatch);
+    var arrayToUpdate = []
+    for (q of arr){
+        arrayToUpdate.push(q.questionId)
+    }
+    console.log(arrayToUpdate)
+
+    Question.find({_id:{$in:arrayToUpdate}},(err,doc) => {
+        
+        if (err) return res.status(400).send(err)
+
+        res.send(doc)
+    })
+})
+
+app.get('/api/getQuestionAfterBundle' , (req,res) => {
+    Question.find({bundleVersion: {$gt : req.query.bundleVersion}} , (err,doc) =>{
+        if (err){
+            res.status(400).send(err)
+        }
+        res.send(doc)
+    })
+})
 
 app.get('/api/getQuestion' , (req,res) => {
     let skip = parseInt(req.query.skip)
@@ -235,19 +267,54 @@ app.get('/api/getAllUsers' , (req,res) => {
 // ======================= Update ==========================
 // QUESTION API :
 app.post('/api/validateQuestionById', (req,res)=> {
-    Question.findByIdAndUpdate(req.body._id, {isVerified:true}, {new:true}, (err,doc)=>{
+    Question.countDocuments({isVerified:true},(err,count) => {
         if (err){
             return res.status(400).send(err)
         }
-
-        res.json({
-            success:true,
-            doc:doc
+        var bundleVersion = count + 1
+        Question.findOneAndUpdate({_id:req.body._id,isVerified:false}, {isVerified:true,bundleVersion:bundleVersion}, {new:true,useFindAndModify: false}, (err,doc)=>{
+            if (err){
+                return res.status(400).send(err)
+            }
+    
+            res.json({
+                success:true,
+                doc:doc
+            })
         })
     })
 })
+
+app.post('/api/validateAll', (req,res)=> {
+
+        Question.find({isVerified:false},(err,doc) => {
+                Question.countDocuments({isVerified:true},(err,count) => {
+                    if (err){
+                        return res.status(400).send(err)
+                    }
+                    var c = count + 1
+                    for (q of doc){
+                        Question.findByIdAndUpdate(q._id,{isVerified:true,bundleVersion:c},{new:true}, (err,doc) => {
+                            if (err){
+                                return res.status(400).send(err)
+                            }
+                            console.log(doc)
+                        })
+                        c += 1
+                    }
+                    res.json({
+                        success:true,
+                        doc:doc
+                    })
+                })
+    })
+})
+
+
 // USER API :
 app.post('/api/makeUserAdmingByID', (req,res)=> {
+
+
     User.findByIdAndUpdate(req.body._id, {isAdmin:true}, {new:true}, (err,doc)=>{
         if (err){
             return res.status(400).send(err)
@@ -300,6 +367,13 @@ app.delete("/api/deleteQuestionById",(req,res) => {
         res.send(doc)
     })
 })
+
+app.delete("/api/deleteAllQuestion",(req,res) => {
+    Question.deleteMany({},(err) =>  {
+        console.log(err)
+    })
+})
+
 // USER API :
 app.delete("/api/deleteUserById",(req,res) => {
     User.findByIdAndDelete(req.body._id,(err,doc) => {
@@ -307,6 +381,7 @@ app.delete("/api/deleteUserById",(req,res) => {
         res.send(doc)
     })
 })
+
 
 
 

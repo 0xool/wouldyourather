@@ -126,8 +126,9 @@ class MainGamePage extends Component {
 
             currentQuestion: null,
             viewState: "vote",
-            questions: [],
+            questions: [],            
             index: 0,
+            updateIndex:-1,
             isLoading: true,
             preLoadingView: true,
             backendChecked: false,
@@ -213,6 +214,9 @@ class MainGamePage extends Component {
 
         
             db.initDB(() => {
+                db.countDbData().then((data) => {
+                    console.log(`here mf ${data.toString()}`)
+                })
                 this.getQuestions()
                 setTimeout(() => {
                     this.setState({preLoadingView:false})
@@ -221,8 +225,7 @@ class MainGamePage extends Component {
                     
                     setTimeout(() => {
                         
-                            this.updateDatabaseData()
-                            // db.questionExists('e68f8257187d11eed108e9f')
+
                         global.firstLoad = false
                     },4000)
                 },1500)
@@ -308,7 +311,7 @@ saveQuestion(questionId,firstQuestion,secondQuestion,firstQuestionVoteNumber,sec
 
 getQuestions() {
     let questions = [];
-    db.listUnvotedQuestions(questionDataJSON).then((data) => {
+    db.listAllUnvotedQuestions(questionDataJSON).then((data) => {
         questions = data;
         this.setState({currentQuestion:questions[0],questions:questions})
         console.log(`mother fucker ${this.state.currentQuestion.questionId}`)
@@ -342,11 +345,12 @@ getQuestions() {
                 question.firstQuestionVoteNumber += 1
                 this.setState({viewState:"voted",currentQuestion:question})
                 this.updateQuestionVoteNumber()  
-                this.sendVote(1)            
+                this.sendVote(1)    
+                this.checkForUpdateBatchData()
                 break;
             case "voted":
                 this.adCounterCheckup()
-                if (this.state.questions.length == 0){
+                if (this.state.questions.length == index){
 
                     this.setState({index:0})
                     var question = this.state.questions[index + 1]
@@ -367,6 +371,35 @@ getQuestions() {
 
                 break;
         }
+    }
+
+    checkForUpdateBatchData () {
+        console.log(`asshole ${this.state.index % 50}`)
+        console.log(`s ${this.state.updateIndex}`)
+        if (this.state.index % 50 != this.state.updateIndex){
+            console.log(`s ${this.state.updateIndex}`)
+            const newUpdateIndex =+ 1
+            this.setState({
+                updateIndex:newUpdateIndex,
+            })
+            //get next 50 batch data
+            var q = this.state.questions
+            var updateArray = q.slice(newUpdateIndex * 50 , newUpdateIndex * 50 + 51)
+            console.log(updateArray)
+            
+            axios.get('http://localhost:3001/api/getBatchQuestionUpdate',{questionBatch:updateArray}).then((result) => {
+                    console.log(`result is ${result}`)
+            }).catch(err => {
+                    console.log(`maybe ${err}`)
+                }) 
+
+                axios.get(`localhost:3001/api/getAllQuestion`)
+                .then(response => {
+
+                }).catch((err) => {
+
+                })
+        } 
     }
 
     sendVote (voteNumber) {
@@ -450,7 +483,7 @@ getQuestions() {
                 break;
             case "voted":
                 this.adCounterCheckup()
-                if (this.state.questions.length == 0){
+                if (this.state.questions.length == this.state.index){
                     this.setState({index:0})
                     var question = this.state.questions[index + 1]
                     this.setState({currentQuestion:question})

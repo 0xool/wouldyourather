@@ -127,8 +127,29 @@ export default class Database {
         });  
       }
 
-      listUnvotedQuestions() {
-        
+      countDbData() {
+
+        return new Promise((resolve) => {
+          this.initDB().then((db) => {
+            db.transaction((tx) => {
+              tx.executeSql('SELECT COUNT(*) FROM Question').then(([tx, results]) => {
+                console.log(`mfff ${JSON.stringify(results)}`)
+                resolve(results);
+              });
+            }).then((result) => {
+              this.closeDatabase(db);
+            }).catch((err) => {
+              
+
+              console.log(err);
+            });
+          }).catch((err) => {
+            console.log(err);
+          });
+        });  
+      }
+
+      listAllUnvotedQuestions(index,count,limit) {
         return new Promise((resolve) => {
           const questions = [];
           this.initDB().then((db) => {
@@ -137,6 +158,42 @@ export default class Database {
                 console.log("Query completed");
                 var len = results.rows.length;
                 for (let i = 0; i < len; i++) {
+                  let row = results.rows.item(i);
+                  const {  firstQuestion , secondQuestion , firstQuestionVoteNumber, secondQuestionVoteNumber,voted } = row;
+                  const questionId = row.questionId.toString()
+                  questions.push({
+                    questionId, 
+                    firstQuestion ,
+                    secondQuestion ,
+                    firstQuestionVoteNumber,
+                    secondQuestionVoteNumber,
+                    voted 
+                  });
+                }
+                resolve(questions);
+              });
+            }).then((result) => {
+              this.closeDatabase(db);
+            }).catch((err) => {
+              console.log(err);
+            });
+          }).catch((err) => {
+            console.log(err);
+          });
+        });  
+      }
+
+      listUnvotedQuestionsByLimit(index,count,limit) {
+        return new Promise((resolve) => {
+          const questions = [];
+          this.initDB().then((db) => {
+            db.transaction((tx) => {
+              tx.executeSql('SELECT q.questionId,q.firstQuestion, q.secondQuestion,q.firstQuestionVoteNumber,q.secondQuestionVoteNumber,q.voted FROM Question q WHERE voted = 0', []).then(([tx,results]) => {
+                console.log("Query completed");
+                var len = results.rows.length;
+                var fromIndex = index * limit
+                var toIndex = (count - fromIndex < limit) ? count : fromIndex + limit
+                for (let i = fromIndex; i < toIndex; i++) {
                   let row = results.rows.item(i);
                   const {  firstQuestion , secondQuestion , firstQuestionVoteNumber, secondQuestionVoteNumber,voted } = row;
                   const questionId = row.questionId.toString()
@@ -189,7 +246,6 @@ export default class Database {
             
             db.transaction((tx) => {
               tx.executeSql('SELECT EXISTS(SELECT 1 FROM Question WHERE questionId=? )', [id]).then(([tx, results]) => {
-                console.log(`look here bitch :D ${results.rows[0]}`)
                 resolve(results);
               });
             }).then((result) => {
