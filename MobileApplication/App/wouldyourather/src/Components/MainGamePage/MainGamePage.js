@@ -1,12 +1,14 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect,Component } from 'react'
 import {
     SafeAreaView,
     StyleSheet,
     View,
     Image,
+    Alert,
     Text,
     StatusBar,
     TouchableHighlight,
+    Animated,
     } from 'react-native';
 
 import {
@@ -25,9 +27,14 @@ import Drawer from 'react-native-drawer'
 import SMC from './SideMenuComponent/SideMenuComponent'
 import Tapsell, { BannerAd } from "react-native-tapsell";
 
-import { ZONE_IDS,SERVER_API_ADDRESS } from '../../Utilities/Constants';
+import { ZONE_IDS,SERVER_API_ADDRESS, AD_LIMIT } from '../../Utilities/Constants';
 import Flurry from 'react-native-flurry-sdk';
+import PopUp from './PopUp/PopUp'
 import {getAdStatus,saveAdStatus,saveOfflineVote,getOfflineVote} from '../../Manager/UserManager'
+
+import AddQuestion from '../AddQuesetion/AddQuestion'
+import { connect } from 'react-redux';
+import {hideAddQuestion,showAddQuestion} from '../../Redux/Actions/MainPageAction'
 
 const menuImage = require('../../Images/menu.png')
 const questionDataJSON = require('../../Database/questions.json');
@@ -78,7 +85,7 @@ const styles = StyleSheet.create({
     },
     footerView: {
         backgroundColor: '#292929',
-        height: 60,  
+        height: 70,  
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -103,12 +110,18 @@ const styles = StyleSheet.create({
     main: {paddingRight: -3},
   }
 
+  const AddQuestionView = (hide) => {
+      return (
+          <AddQuestion hide={hide}/>
+      )
+  }
 
+  
 
 class MainGamePage extends Component {
 
-    constructor() {
-        super()
+    constructor(props) {
+        super(props)
         this.state = {
 
             currentQuestion: null,
@@ -119,7 +132,8 @@ class MainGamePage extends Component {
             preLoadingView: true,
             backendChecked: false,
             serverData:[],
-            adId: '',
+            videAdId: '',
+            bannerAdId: '',
             adCounter: 0,
             adStatus:false,
         }
@@ -130,7 +144,8 @@ class MainGamePage extends Component {
         this.getCurrentSecondQuestionPrecentage = this.getCurrentSecondQuestionPrecentage.bind(this)
         this.adCounterCheckup = this.adCounterCheckup.bind(this)
         this.getQuestions = this.getQuestions.bind(this)
-        this.sendVote = this.sendVote.bind(this)
+        this.sendVote = this.sendVote.bind(this) 
+        this.getTapsellAd = this.getTapsellAd.bind(this)        
 
         Tapsell.setRewardListener((zoneId , adId , completed , rewarded) => {
             // onAdShowFinished
@@ -139,16 +154,8 @@ class MainGamePage extends Component {
             console.log("onAdShowFinished");
         });
 
-        Tapsell.requestAd(ZONE_IDS.INTERSTITIAL_VIDEO,true,(zoneId,adId) => {
-            this.setState({adId:adId})
-            console.log('ffff')            
-        },() => {console.log('no ad');
-        } , () => {console.log('no network');
-        } , (zoneId,err)=>{console.log('error:');
-        console.log(err)
-        } , () => {console.log('====================================');
-        console.log('expired');
-        console.log('====================================');})
+        this.getTapsellAd(true)
+        this.getTapsellAd(false)
 
         //load data from db and show
         getData = async () => {
@@ -178,7 +185,6 @@ class MainGamePage extends Component {
                     }
                     
                     this.setState({backendChecked:true})
-                    console.log(thi.state.backendChecked)
                 }
                 
         
@@ -192,7 +198,7 @@ class MainGamePage extends Component {
             }
           }         
         getData()
-        if(global.firstLoad ){
+
             axios.get(`${SERVER_API_ADDRESS}getAllQuestion`)
                         .then(response => {
                             this.setState({serverData:response.data})
@@ -203,28 +209,26 @@ class MainGamePage extends Component {
                         }).catch((err) => {
 
                         })
-                }
-
-
-        db.initDB(() => {
-            this.getQuestions()
-            setTimeout(() => {
-                this.setState({preLoadingView:false})
-                this.setState({isLoading:false})
-
                 
+
+        
+            db.initDB(() => {
+                this.getQuestions()
                 setTimeout(() => {
-                    if(global.firstLoad ){
-                        this.updateDatabaseData()
-                        // db.questionExists('e68f8257187d11eed108e9f')
-                    }
-                    global.firstLoad = false
-                },4000)
-            },1500)
-        }).then( () => {
-            //load data from back end and update
-            console.log('maybe just maybe')
-        })
+                    this.setState({preLoadingView:false})
+                    this.setState({isLoading:false})
+
+                    
+                    setTimeout(() => {
+                        
+                            this.updateDatabaseData()
+                            // db.questionExists('e68f8257187d11eed108e9f')
+                        global.firstLoad = false
+                    },4000)
+                },1500)
+            }).then( () => {
+                //load data from back end and update
+            })
 
     }
 
@@ -235,8 +239,6 @@ class MainGamePage extends Component {
         var adStatus = getAdStatus()
         this.setState({adStatus:adStatus})
 
-        
-         
     }
 
     setAdStatus () {
@@ -330,7 +332,8 @@ getQuestions() {
 
     _onPressFirstQuestionButton() {   
         switch (this.state.viewState) {
-            case "vote":                         
+            case "vote":    
+                Flurry.logEvent('Vote Question Event');                     
                 if (this.state.currentQuestion == null){
                     this.setState({viewState:'finished'})
                     break
@@ -344,8 +347,11 @@ getQuestions() {
             case "voted":
                 this.adCounterCheckup()
                 if (this.state.questions.length == 0){
-                    this.setState({currentQuestion:null})
-                    this.setState({viewState:'finished'})
+
+                    this.setState({index:0})
+                    var question = this.state.questions[index + 1]
+                    this.setState({currentQuestion:question})
+                    
                     break
                 }else{
                     var index = this.state.index
@@ -355,6 +361,7 @@ getQuestions() {
                 this.setState({viewState:'vote'})
                 break;
             case 'finished' :
+
                 break
             default:
 
@@ -364,24 +371,37 @@ getQuestions() {
 
     sendVote (voteNumber) {
         if (this.state.backendChecked){
-            console.log(`bitchAss + ${this.state.currentQuestion.questionId}`)
             axios.post(`${SERVER_API_ADDRESS}vote`,{_id:this.state.currentQuestion.questionId,voteNumber:voteNumber}).then(
                 ).catch(err => {
                     console.log(`maybe ${err}`)
                 }) 
         }else{
-            console.log('bitchAss2')
             saveOfflineVote({id:this.state.currentQuestion.questionId,voteNumber:voteNumber})
         }
     }
 
     adCounterCheckup () {
-        if (this.state.adCounter == 5 && this.state.adStatus){
+        if (this.state.adCounter == AD_LIMIT && this.state.adStatus){
             this.setState({adCounter:0})
             //show add
+            var rand = Math.floor((Math.random() * 2) + 1);
+            var id
+            switch (rand) {
+                case 1:
+                    id = this.state.videAdId
+                    this.getTapsellAd(true)
+                    break;
+                case 2:
+                    id = this.state.bannerAdId
+                    this.getTapsellAd(false)
+                    break;
+                default:
+                    break;
+            }
+
             Tapsell.showAd({
-                ad_id: this.state.adId,
-                back_disabled:  false,
+                ad_id: id,
+                back_disabled:  true,
                 immersive_mode: false,
                 rotation_mode: Tapsell.ROTATION_UNLOCKED,
                 show_exit_dialog: true
@@ -392,9 +412,31 @@ getQuestions() {
         }
     }
 
+    getTapsellAd(videoType) {
+        const adType = (videoType) ? ZONE_IDS.INTERSTITIAL_VIDEO : ZONE_IDS.INTERSTITIAL_BANNER
+        
+        Tapsell.requestAd(adType,true,(zoneId,adId) => {
+            if (videoType){
+                this.setState({videAdId:adId})
+            }else{
+                this.setState({bannerAdId:adId})
+            }
+         
+        },() => {console.log('no ad');
+ 
+        } , (zone,err) => {console.log('no network');
+
+        } , (zoneId,err)=>{console.log('error:');
+
+        } , () => {console.log('====================================');
+        console.log('expired');
+        console.log('====================================');})
+    }
+
     _onPressSecondQuestionButton() {
         switch (this.state.viewState) {
             case "vote":   
+                Flurry.logEvent('Vote Question Event');
                 if (this.state.currentQuestion == null){
                     this.setState({viewState:'finished'})
                     return
@@ -409,8 +451,10 @@ getQuestions() {
             case "voted":
                 this.adCounterCheckup()
                 if (this.state.questions.length == 0){
-                    this.setState({currentQuestion:null})
-                    this.setState({viewState:'finished'})
+                    this.setState({index:0})
+                    var question = this.state.questions[index + 1]
+                    this.setState({currentQuestion:question})
+
                     break
                 }else{
                     var index = this.state.index
@@ -462,10 +506,7 @@ getQuestions() {
                 var total = this.state.currentQuestion.firstQuestionVoteNumber + this.state.currentQuestion.secondQuestionVoteNumber
                 var current = this.state.currentQuestion.secondQuestionVoteNumber
                 var c = Math.floor( current / total * 100)
-                console.log(this.state.backendChecked)
-                console.log('indic')
                 if (this.state.backendChecked){
-                    
                     return `${c} %`
                 }
                 return ''
@@ -490,65 +531,96 @@ getQuestions() {
 
     render () {
 
+        const netwokrPopUp = () => {
+            if (this.state.backendChecked)
+                return (<View></View>)
+            return (<PopUp/>)
 
-        if (this.state.preLoadingView){
-            return (
-                <View  style = { {backgroundColor:'#292929',height:'100%',width:'100%'}}></View>
-            )
         }
 
-        return (
-            <Drawer type="overlay"
-            side={'right'}
-            content={<SMC />}
-            ref={(ref) => this._drawer = ref}
-            tapToClose={true}
-            openDrawerOffset={0.6} 
-            panCloseMask={0.6}
-            styles={drawerStyles}
-            tweenHandler={(ratio) => ({
-                main: { opacity:(2-ratio)/2 }
-            })}
-            >
-                
-            <View  style = { {backgroundColor:'#292929'}}>
-                    <StatusBar style = { {backgroundColor:'#292929'}} barStyle="dark-content" />
-                    <SafeAreaView>
-                        <View style={styles.gameView}>
-                            
-                            <View style={styles.headerView}>
-                                <TouchableHighlight onPress={() => {this._drawer.open()}} style={{height:50,width:50,position:'absolute',top:0,right:0,alignContent:'center',justifyContent:'center'}}>
-                                    <Image style={{width:25,height:25}} source={menuImage}></Image>
-                                </TouchableHighlight>
-                                <Text style={{fontSize:25,color:'white'}}> کدومش؟</Text>
-                            </View>
-                            
-                            <TouchableHighlight style={styles.firstQuestionView} onPressIn={this._onPressFirstQuestionButton}  underlayColor="#aaadab4f" >
-                                <View ><Text style={styles.questionText}>{this.getCurrentFirstQuestion()}</Text><Text style={styles.questionText}>{this.getCurrentFirstQuestionPrecentage()}</Text></View>
-                            </TouchableHighlight>
-                            <View style={styles.midLineView}>
-                                <View style={styles.orView}>
-                                    <Text style={{color:'white',fontSize:20}}>یا</Text>
+        const gameView = () => {
+            return (
+                <Drawer type="overlay"
+                side={'right'}
+                content={<SMC />}
+                ref={(ref) => this._drawer = ref}
+                tapToClose={true}
+                openDrawerOffset={0.6} 
+                panCloseMask={0.6}
+                styles={drawerStyles}
+                tweenHandler={(ratio) => ({
+                    main: { opacity:(2-ratio)/2 }
+                })}
+                >
+                    
+                <View  style = { {backgroundColor:'#292929'}}>
+                        <StatusBar style = { {backgroundColor:'#292929'}} barStyle="dark-content" />
+                        <SafeAreaView>
+                            <View style={styles.gameView}>
+                                
+                                <View style={styles.headerView}>
+                                    <TouchableHighlight onPress={() => {this._drawer.open()}} style={{height:50,width:50,position:'absolute',top:0,right:0,alignContent:'center',justifyContent:'center'}}>
+                                        <Image style={{width:25,height:25}} source={menuImage}></Image>
+                                    </TouchableHighlight>
+                                    <Text style={{fontSize:25,color:'white'}}> کدومش؟</Text>
                                 </View>
-                            </View>
-                            <TouchableHighlight style={styles.secondQuestionView} onPressIn={this._onPressSecondQuestionButton}  underlayColor="#aaadab4f" >
-                                <View><Text style={styles.questionText}>{this.getCurrentSecondQuestion()}</Text><Text style={styles.questionText}>{this.getCurrentSecondQuestionPrecentage()}</Text></View>
-                            </TouchableHighlight>
-                            <View style={styles.footerView}>
-                                <BannerAd
-                                    zoneId={ZONE_IDS.STANDARD_BANNER}
-                                    bannerType={Tapsell.BANNER_320x50}
-                                />
-                            </View>
-                            
-                        </View>
-                    </SafeAreaView>
-                
-                </View>
+                                
+                                <TouchableHighlight style={styles.firstQuestionView} onPressIn={this._onPressFirstQuestionButton}  underlayColor="#aaadab4f" >
+                                    <View ><Text style={styles.questionText}>{this.getCurrentFirstQuestion()}</Text><Text style={styles.questionText}>{this.getCurrentFirstQuestionPrecentage()}</Text></View>
+                                </TouchableHighlight>
+                                <View style={styles.midLineView}>
+                                    <View style={styles.orView}>
+                                        <Text style={{color:'white',fontSize:20}}>یا</Text>
+                                    </View>
+                                </View>
+                                <TouchableHighlight style={styles.secondQuestionView} onPressIn={this._onPressSecondQuestionButton}  underlayColor="#aaadab4f" >
+                                    <View><Text style={styles.questionText}>{this.getCurrentSecondQuestion()}</Text><Text style={styles.questionText}>{this.getCurrentSecondQuestionPrecentage()}</Text></View>
+                                </TouchableHighlight>
 
-            </Drawer>
-        )
-    }
+                                {netwokrPopUp()}
+                            </View>
+                        </SafeAreaView>
+                    
+                    </View>
+
+                </Drawer>
+                )
+            }
+
+            if (this.state.preLoadingView){
+                return (
+                    <View  style = { {backgroundColor:'#292929',height:'100%',width:'100%'}}></View>
+                )
+            }
+
+            if (this.props.isMainPageGameView) {
+                return gameView()
+            }else{
+                return AddQuestionView()
+            }
+
+            
+        }
 }
 
-export default MainGamePage
+// Map State To Props (Redux Store Passes State To Component)
+const mapStateToProps = (state) => {
+    // Redux Store --> Component
+    return {
+      isMainPageGameView: state.mainPageReducer.isMainPageGameView,
+    };
+  };
+  
+  // Map Dispatch To Props (Dispatch Actions To Reducers. Reducers Then Modify The Data And Assign It To Your Props)
+  const mapDispatchToProps = (dispatch) => {
+    // Action
+      return {
+        showAddQuestion: () => dispatch(showAddQuestion()),
+        hideAddQuestion: () => dispatch(hideAddQuestion()),
+        
+     };
+  };
+  
+  // Exports
+  export default connect(mapStateToProps, mapDispatchToProps)(MainGamePage);
+

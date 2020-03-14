@@ -11,6 +11,7 @@ import './src/Utilities/Constants'
 import { TAPSELL_KEY } from './src/Utilities/Constants';
 import {runFlurry} from './src/Manager/FlurryManager'
 
+console.disableYellowBox = true
 runFlurry()
 Tapsell.initialize(TAPSELL_KEY);
 registerScreens();
@@ -19,7 +20,7 @@ Navigation.events().registerAppLaunchedListener(() => {
   Navigation.setRoot({
     root: {
       component: {
-        name: 'Home'
+        name: 'Home',
       }
     },
   });

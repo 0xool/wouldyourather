@@ -23,7 +23,11 @@
     "react-native-navigation": "^6.1.2",
     "react-native-safe-area-context": "^0.7.3",
     "react-native-sqlite-storage": "^4.1.0",
-    "react-native-tapsell": "^4.1.7"
+    "react-native-tapsell": "^4.1.7",
+    "react-redux": "^7.2.0",
+    "redux": "^4.0.5",
+    "redux-logger": "^3.0.6",
+    "redux-persist": "^6.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.8.6",

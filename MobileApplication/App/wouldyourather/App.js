@@ -1,13 +1,26 @@
-import * as React from 'react';
-import { View, Text } from 'react-native';
+import MCV from './src/Components/MainContainerView/MainContainerView'
+// Imports: Dependencies
+import React from 'react';
+import { PersistGate } from 'redux-persist/es/integration/react'
+import { Provider } from 'react-redux';
 
-import MGP from './src/Components/MainGamePage/MainGamePage'
+// Imports: Screens
 
 
-function App() {
+// Imports: Redux Persist Persister
+import { store, persistor } from './src/Redux/Store/store';
+
+// React Native: App
+export default App = () => {
   return (
-    <MGP/>
+    // Redux: Global Store
+    <Provider store={store}>
+      <PersistGate 
+        loading={null}
+        persistor={persistor}
+      >
+        <MCV />
+      </PersistGate>
+    </Provider>
   );
-}
-
-export default App;
+};

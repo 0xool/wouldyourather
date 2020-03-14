@@ -32,14 +32,13 @@ target 'wouldyourather' do
   pod 'ReactCommon/turbomodule/core', :path => "../node_modules/react-native/ReactCommon"
   pod 'Yoga', :path => '../node_modules/react-native/ReactCommon/yoga'
 	
-  pod 'TSTapsell', :path => '../node_modules/react-native-tapsell'
   pod 'DoubleConversion', :podspec => '../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec'
   pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
 
   pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-community/async-storage'
   pod 'react-native-flurry-sdk', :path => '../node_modules/react-native-flurry-sdk/ios'
-
+  pod 'TSTapsell', :path => '../node_modules/react-native-tapsell/ios'
 
   target 'wouldyouratherTests' do
     inherit! :search_paths

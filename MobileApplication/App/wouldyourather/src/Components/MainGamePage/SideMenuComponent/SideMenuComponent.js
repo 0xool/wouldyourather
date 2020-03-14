@@ -16,15 +16,19 @@ import {
         justifyContent: 'center',
         alignItems: 'center',
     }
-import {goHome, goAddQuestion} from '../../../Screens/Navigation/Navigation'
+    import { connect } from 'react-redux';
+    import {hideAddQuestion,showAddQuestion} from '../../../Redux/Actions/MainPageAction'
 
 class SideMenuComponent extends Component {
 
+    constructor(props){
+        super(props)
+        this.addQuestionMenuBtnClicked = this.addQuestionMenuBtnClicked.bind(this)
+    }
 
     addQuestionMenuBtnClicked ()
     {
-           goAddQuestion()
-           
+           this.props.showAddQuestionRedux()          
     }
 
     removeAdBtnClicked () {
@@ -64,4 +68,14 @@ class SideMenuComponent extends Component {
     }
 }
 
-export default SideMenuComponent
+  // Map Dispatch To Props (Dispatch Actions To Reducers. Reducers Then Modify The Data And Assign It To Your Props)
+  const mapDispatchToProps = (dispatch) => {
+    // Action
+      return {
+        showAddQuestionRedux: () => dispatch(showAddQuestion()),
+        
+     };
+  };
+  
+  // Exports
+  export default connect(null,mapDispatchToProps)(SideMenuComponent);

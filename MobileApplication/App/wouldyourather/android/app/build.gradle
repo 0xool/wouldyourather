@@ -25,7 +25,7 @@ import com.android.build.OutputFile
  *   bundleInDebug: false,
  *
  *   // whether to bundle JS and assets in release mode
- *   bundleInRelease: true,
+    bundleInRelease: true,
  *
  *   // whether to bundle JS and assets in another build variant (if configured).
  *   // See http://tools.android.com/tech-docs/new-build-system/user-guide#TOC-Build-Variants
@@ -95,7 +95,7 @@ def enableSeparateBuildPerCPUArchitecture = true
 /**
  * Run Proguard to shrink the Java bytecode in release builds.
  */
-def enableProguardInReleaseBuilds = true
+def enableProguardInReleaseBuilds = false
 
 
 /**
@@ -189,6 +189,7 @@ android {
 }
 
 dependencies {
+    implementation project(':react-native-tapsell')
     implementation project(':react-native-navigation')
     implementation project(':@react-native-community_async-storage')
     implementation project(':react-native-sqlite-storage')

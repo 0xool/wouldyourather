@@ -3,7 +3,10 @@ import { Navigation } from 'react-native-navigation'
     root: {
         component: {
             id:'Home',
-            name: 'Home'
+            name: 'Home',
+            passProps: {
+              loader: 'false'
+            }
         }
       }
   })
@@ -13,7 +16,8 @@ import { Navigation } from 'react-native-navigation'
     root: {
         component: {
             id:'AddQuestion',
-            name: 'AddQuestion'
+            name: 'AddQuestion',
+ 
         }
       }
   })
