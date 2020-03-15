@@ -12,7 +12,8 @@ const questionSchema = mongoose.Schema({
     secondQuestion:{
         type:String,
         required:String,
-    },bundleVersion:{
+    },
+    bundleVersion:{
         type:Number,
         default:-1,
     },
