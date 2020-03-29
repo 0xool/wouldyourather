@@ -34,7 +34,10 @@ import {getAdStatus,saveAdStatus,saveOfflineVote,getOfflineVote} from '../../Man
 
 import AddQuestion from '../AddQuesetion/AddQuestion'
 import { connect } from 'react-redux';
-import {hideAddQuestion,showAddQuestion} from '../../Redux/Actions/MainPageAction'
+import {hideAddQuestion,showAddQuestion,RegisteredForAdRemove} from '../../Redux/Actions/MainPageAction'
+import CafeBazaar from 'react-native-cafe-bazaar'
+
+
 
 const menuImage = require('../../Images/menu.png')
 const questionDataJSON = require('../../Database/questions.json');
@@ -136,7 +139,6 @@ class MainGamePage extends Component {
             videAdId: '',
             bannerAdId: '',
             adCounter: 0,
-            adStatus:false,
         }
     
         this._onPressFirstQuestionButton = this._onPressFirstQuestionButton.bind(this)
@@ -148,6 +150,24 @@ class MainGamePage extends Component {
         this.sendVote = this.sendVote.bind(this) 
         this.getTapsellAd = this.getTapsellAd.bind(this)        
 
+        CafeBazaar.open()
+        .then(() => {            
+            
+            CafeBazaar.loadOwnedItems()
+                    .then((details) => {
+                        // alert(`asd${details}`)
+                        if(details.indexOf('removeAd') !== -1){
+                            this.props.RegisteredForAdRemove()                            
+                        }
+                        CafeBazaar.close()
+                    })
+                    .catch(err => {
+                    console.log(`CafeBazaar err: ${err}`)
+                    CafeBazaar.close()
+                })
+        })
+        .catch(err => console.log(`CafeBazaar err: ${err}`))
+
         Tapsell.setRewardListener((zoneId , adId , completed , rewarded) => {
             // onAdShowFinished
             console.log(adId);
@@ -155,7 +175,6 @@ class MainGamePage extends Component {
             console.log("onAdShowFinished");
         });
 
-        this.getTapsellAd(true)
         this.getTapsellAd(false)
 
         //load data from db and show
@@ -239,14 +258,11 @@ class MainGamePage extends Component {
         // this.saveQuestion()
         // db.importTest()
 
-        var adStatus = getAdStatus()
-        this.setState({adStatus:adStatus})
+        
+        
 
     }
 
-    setAdStatus () {
-        saveAdStatus()
-    }
      
      updateDatabaseData () {
             
@@ -349,7 +365,9 @@ getQuestions() {
                 this.checkForUpdateBatchData()
                 break;
             case "voted":
-                this.adCounterCheckup()
+                if (!this.props.removeAdRegistered){
+                    this.adCounterCheckup()
+                }
                 if (this.state.questions.length == index){
 
                     this.setState({index:0})
@@ -414,7 +432,7 @@ getQuestions() {
     }
 
     adCounterCheckup () {
-        if (this.state.adCounter == AD_LIMIT && this.state.adStatus){
+        if (this.state.adCounter == AD_LIMIT ){
             this.setState({adCounter:0})
             //show add
             var rand = Math.floor((Math.random() * 2) + 1);
@@ -422,7 +440,7 @@ getQuestions() {
             switch (rand) {
                 case 1:
                     id = this.state.videAdId
-                    this.getTapsellAd(true)
+                    this.getTapsellAd(false)
                     break;
                 case 2:
                     id = this.state.bannerAdId
@@ -482,7 +500,9 @@ getQuestions() {
                 this.sendVote(2)           
                 break;
             case "voted":
-                this.adCounterCheckup()
+                if (!this.props.removeAdRegistered){
+                    this.adCounterCheckup()
+                }
                 if (this.state.questions.length == this.state.index){
                     this.setState({index:0})
                     var question = this.state.questions[index + 1]
@@ -641,6 +661,7 @@ const mapStateToProps = (state) => {
     // Redux Store --> Component
     return {
       isMainPageGameView: state.mainPageReducer.isMainPageGameView,
+      removeAdRegistered: state.mainPageReducer.removeAdRegistered,
     };
   };
   
@@ -650,7 +671,7 @@ const mapStateToProps = (state) => {
       return {
         showAddQuestion: () => dispatch(showAddQuestion()),
         hideAddQuestion: () => dispatch(hideAddQuestion()),
-        
+        RegisteredForAdRemove: () => dispatch(RegisteredForAdRemove()),
      };
   };
   

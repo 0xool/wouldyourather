@@ -75,6 +75,12 @@ import com.android.build.OutputFile
  * ]
  */
 
+ configurations {
+            cleanedAnnotations
+             compile.exclude group: 'org.jetbrains' , module:'annotations'
+         }
+
+
 project.ext.react = [
     entryFile: "index.js",
     enableHermes: false,  // clean and rebuild if changing
@@ -90,7 +96,7 @@ apply from: "../../node_modules/react-native/react.gradle"
  * Upload all the APKs to the Play Store and people will download
  * the correct one based on the CPU architecture of their device.
  */
-def enableSeparateBuildPerCPUArchitecture = true
+def enableSeparateBuildPerCPUArchitecture = false
 
 /**
  * Run Proguard to shrink the Java bytecode in release builds.
@@ -129,11 +135,12 @@ android {
     }
 
     defaultConfig {
+        multiDexEnabled true  //add this line
         applicationId "com.wouldyourather"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0"
+        versionName "1.025"
     }
     splits {
         abi {
@@ -191,6 +198,7 @@ android {
 dependencies {
     implementation project(':react-native-tapsell')
     implementation project(':react-native-navigation')
+    implementation project(':react-native-cafe-bazaar')
     implementation project(':@react-native-community_async-storage')
     implementation project(':react-native-sqlite-storage')
     implementation fileTree(dir: "libs", include: ["*.jar"])

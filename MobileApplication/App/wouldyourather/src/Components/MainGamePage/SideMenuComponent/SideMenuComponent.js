@@ -18,12 +18,15 @@ import {
     }
     import { connect } from 'react-redux';
     import {hideAddQuestion,showAddQuestion} from '../../../Redux/Actions/MainPageAction'
+    import CafeBazaar from 'react-native-cafe-bazaar'
+
 
 class SideMenuComponent extends Component {
 
     constructor(props){
         super(props)
         this.addQuestionMenuBtnClicked = this.addQuestionMenuBtnClicked.bind(this)
+        this.removeAdBtnClicked = this.removeAdBtnClicked.bind(this)
     }
 
     addQuestionMenuBtnClicked ()
@@ -32,15 +35,15 @@ class SideMenuComponent extends Component {
     }
 
     removeAdBtnClicked () {
-
-    }
-
-    rateUsBtnClicked () {
-
-    }
-
-    aboutUsBtnClicked () {
-
+        CafeBazaar.open()
+            .then(() => CafeBazaar.purchase('removeAd','',2))
+                .then((details) => {
+                    //remove ad activation
+                    this.props.RegisteredForAdRemove()
+                    alert('خرید شما با موفقیت ثبت شد.')
+                    return CafeBazaar.close()
+            })
+            .catch(err => console.log('CafeBazaar err:', err))
     }
 
 
@@ -55,14 +58,6 @@ class SideMenuComponent extends Component {
                     <View style={menuBtnStyle}><Text>حذف تبلیغات</Text></View>
                 </TouchableOpacity>
                 <View style={{height:1,width:'100%',backgroundColor:'black'}}></View>
-                <TouchableOpacity onPress={this.rateUsBtnClicked}> 
-                    <View style={menuBtnStyle}><Text>رتبه دادن به ما</Text></View>
-                </TouchableOpacity>
-                <View style={{height:1,width:'100%',backgroundColor:'black'}}></View>
-                <TouchableOpacity onPress={this.aboutUsBtnClicked}> 
-                    <View style={menuBtnStyle}><Text>درباره ما</Text></View>
-                </TouchableOpacity>
-
             </View>
         )
     }
@@ -73,6 +68,8 @@ class SideMenuComponent extends Component {
     // Action
       return {
         showAddQuestionRedux: () => dispatch(showAddQuestion()),
+        RegisteredForAdRemove: () => dispatch(RegisteredForAdRemove()),
+        
         
      };
   };

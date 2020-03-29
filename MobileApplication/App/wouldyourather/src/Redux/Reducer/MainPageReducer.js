@@ -1,6 +1,7 @@
 // Initial State
 const initialState = {
     isMainPageGameView: true,
+    removeAdRegistered: false,
   };
   
 // Reducers (Modifies The State And Returns A New State)
@@ -18,7 +19,6 @@ const mainPageReducer = (state = initialState, action) => {
 
     // Decrease Counter
     case 'hide-add-question': {
-        console.log('FUUCK')
       return {
         // State
         ...state,
@@ -26,6 +26,15 @@ const mainPageReducer = (state = initialState, action) => {
         isMainPageGameView: true,
       }
     }
+
+    case 'set-ad-registered': {
+    return {
+      // State
+      ...state,
+      // Redux Store
+      removeAdRegistered: true,
+    }
+  }
 
     // Default
     default: {

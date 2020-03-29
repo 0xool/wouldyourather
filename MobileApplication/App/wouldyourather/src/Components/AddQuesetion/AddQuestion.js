@@ -29,6 +29,9 @@ import { SERVER_API_ADDRESS } from '../../Utilities/Constants';
 import { connect } from 'react-redux';
 import {hideAddQuestion,showAddQuestion} from '../../Redux/Actions/MainPageAction'
 
+import { BackHandler } from 'react-native';
+
+
 var plusImage = require('../../Images/plus.png')
 var backImage = require('../../Images/back.png')
 
@@ -113,8 +116,24 @@ class AddQuestion extends Component {
         this.saveQuestion = this.saveQuestion.bind(this)
         this.firstQuestionTextChange = this.firstQuestionTextChange.bind(this)
         this.secondQuestionTextChange = this.secondQuestionTextChange.bind(this)
+        this.handleBackButtonClick = this.handleBackButtonClick.bind(this);
+
         //load data from db and show
         }
+
+    componentWillMount() {
+        BackHandler.addEventListener('hardwareBackPress', this.handleBackButtonClick);
+
+    }
+
+    componentWillUnmount () {
+        BackHandler.removeEventListener('hardwareBackPress', this.handleBackButtonClick);
+    }
+
+    handleBackButtonClick() {
+        this.props.hide()
+        return true;
+    }
 
     componentDidMount () {
         

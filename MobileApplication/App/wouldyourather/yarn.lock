@@ -5614,6 +5614,11 @@ react-native-axios@^0.17.1:
   dependencies:
     follow-redirects "0.0.7"
 
+react-native-cafe-bazaar@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/react-native-cafe-bazaar/-/react-native-cafe-bazaar-1.0.5.tgz#3d010b05a984dc9166375b84e8a0bab430a0b5ef"
+  integrity sha512-3xbDavVQrVti00YvgJzHCe8ZoQNPdjCiNa+r/mAbGUujGNCjwgOElks384J0OrzODUbB6p1fuq4o+sVmK8r+qg==
+
 react-native-drawer@^2.5.1:
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/react-native-drawer/-/react-native-drawer-2.5.1.tgz#08b9314184f48c724f1b467f8859797369798654"
