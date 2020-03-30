@@ -1,22 +1,18 @@
 import React, { useState, useEffect,Component } from 'react'
 import {
-    SafeAreaView,
-    StyleSheet,
-    View,
-    Image,
-    Alert,
-    Text,
-    StatusBar,
-    TouchableHighlight,
-    Animated,
-    } from 'react-native';
+SafeAreaView,
+StyleSheet,
+View,
+Image,
+Alert,
+Text,
+StatusBar,
+TouchableHighlight,
+Animated,
+} from 'react-native';
 
 import {
-    Header,
-    LearnMoreLinks,
-    Colors,
-    DebugInstructions,
-    ReloadInstructions,
+Colors,        
 } from 'react-native/Libraries/NewAppScreen';
 
 import Database from '../../Database/Database'
@@ -37,11 +33,11 @@ import { connect } from 'react-redux';
 import {hideAddQuestion,showAddQuestion,RegisteredForAdRemove} from '../../Redux/Actions/MainPageAction'
 import CafeBazaar from 'react-native-cafe-bazaar'
 
-
-
+//=============================================================================================================
+// Variables
+//=============================================================================================================
 const menuImage = require('../../Images/menu.png')
 const questionDataJSON = require('../../Database/questions.json');
-
 const db = new Database();  
 const styles = StyleSheet.create({
     gameView: {
@@ -97,32 +93,72 @@ const styles = StyleSheet.create({
         color:'white',
         fontSize:20,
     }
-  });
+});
 
-  saveBackendCheck = async (check = 'false') => {
+//load data from db and show
+getData = async () => {
     try {
-      await AsyncStorage.setItem('backendChecked', check)
-    } catch (e) {
-      // saving error
-      console.log(e)
-    }
-  }
+        const value = await AsyncStorage.getItem('backendChecked')
+        if(value !== null) {
+        // value previously stored
+        if (value == 'false') {
+            
+            this.setState({backendChecked:false})
+        }else if (value == 'true'){
 
-  const drawerStyles = {
+            try {
+                var offlineVotes = await AsyncStorage.getItem('offlineVote')
+                var array = JSON.parse(offlineVotes)
+                
+                if (offlineVotes != null ){                        
+                    for (vote in array) {
+                        axios.post(`${SERVER_API_ADDRESS}vote`,{_id:vote.id,voteNumber:vote.voteNumber}).then(
+                            ).catch(err => {
+                                console.log(err)
+                            }) 
+                    }
+                }
+            } catch (error) {
+                
+            }
+            
+            this.setState({backendChecked:true})
+        }
+                
+        }else {
+            console.log('ok bitch')
+            saveBackendCheck()
+        }
+    } catch(e) {
+        // error reading value
+        console.log(e)
+    }
+} 
+//=============================================================================================================
+saveBackendCheck = async (check = 'false') => {
+    try {
+        await AsyncStorage.setItem('backendChecked', check)
+    } catch (e) {
+        // saving error
+        console.log(e)
+    }
+}
+//=============================================================================================================
+const drawerStyles = {
     drawer: { shadowColor: '#000000', shadowOpacity: 0.8, shadowRadius: 3},
     main: {paddingRight: -3},
-  }
-
-  const AddQuestionView = (hide) => {
-      return (
-          <AddQuestion hide={hide}/>
-      )
-  }
-
-  
-
+}
+//=============================================================================================================
+const AddQuestionView = (hide) => {
+    return (
+        <AddQuestion hide={hide}/>
+    )
+}
+//=============================================================================================================
 class MainGamePage extends Component {
-
+//=============================================================================================================
+// MARK : Construcor
+//=============================================================================================================
     constructor(props) {
         super(props)
         this.state = {
@@ -140,7 +176,7 @@ class MainGamePage extends Component {
             bannerAdId: '',
             adCounter: 0,
         }
-    
+
         this._onPressFirstQuestionButton = this._onPressFirstQuestionButton.bind(this)
         this._onPressSecondQuestionButton = this._onPressSecondQuestionButton.bind(this)
         this.getCurrentFirstQuestionPrecentage = this.getCurrentFirstQuestionPrecentage.bind(this)
@@ -148,14 +184,28 @@ class MainGamePage extends Component {
         this.adCounterCheckup = this.adCounterCheckup.bind(this)
         this.getQuestions = this.getQuestions.bind(this)
         this.sendVote = this.sendVote.bind(this) 
-        this.getTapsellAd = this.getTapsellAd.bind(this)        
+        this.getTapsellAd = this.getTapsellAd.bind(this)
+        this.setupTapsell = this.setupTapsell.bind(this)
+        this.getUserInAppPurchasesForAd = this.getUserInAppPurchasesForAd.bind(this)        
+        this.updateQuestionWithBackend = this.updateQuestionWithBackend.bind(this)        
+        this.questionBtnPressFunctionality = this.questionBtnPressFunctionality.bind(this)        
+        
+        this.getUserInAppPurchasesForAd()
+        this.setupTapsell()
+        this.updateQuestionWithBackend()
 
+    }
+//=============================================================================================================
+    componentDidMount () {
+
+    }
+//=============================================================================================================     
+    getUserInAppPurchasesForAd () {
         CafeBazaar.open()
         .then(() => {            
             
             CafeBazaar.loadOwnedItems()
                     .then((details) => {
-                        // alert(`asd${details}`)
                         if(details.indexOf('removeAd') !== -1){
                             this.props.RegisteredForAdRemove()                            
                         }
@@ -167,189 +217,130 @@ class MainGamePage extends Component {
                 })
         })
         .catch(err => console.log(`CafeBazaar err: ${err}`))
-
+    }  
+//=============================================================================================================   
+    setupTapsell () {
         Tapsell.setRewardListener((zoneId , adId , completed , rewarded) => {
-            // onAdShowFinished
-            console.log(adId);
-            
+            // onAdShowFinished            
             console.log("onAdShowFinished");
         });
 
         this.getTapsellAd(false)
-
-        //load data from db and show
-        getData = async () => {
-            try {
-              const value = await AsyncStorage.getItem('backendChecked')
-              if(value !== null) {
-                // value previously stored
-                if (value == 'false') {
-                    
-                    this.setState({backendChecked:false})
-                }else if (value == 'true'){
-
-                    try {
-                        var offlineVotes = await AsyncStorage.getItem('offlineVote')
-                        var array = JSON.parse(offlineVotes)
-                        
-                        if (offlineVotes != null ){                        
-                            for (vote in array) {
-                                axios.post(`${SERVER_API_ADDRESS}vote`,{_id:vote.id,voteNumber:vote.voteNumber}).then(
-                                    ).catch(err => {
-                                        console.log(err)
-                                    }) 
-                            }
-                        }
-                    } catch (error) {
-                        
-                    }
-                    
-                    this.setState({backendChecked:true})
-                }
-                
-        
-              }else {
-                  console.log('ok bitch')
-                    saveBackendCheck()
-              }
-            } catch(e) {
-              // error reading value
-              console.log(e)
-            }
-          }         
+    }
+//=============================================================================================================   
+    updateQuestionWithBackend () {
         getData()
+        axios.get(`${SERVER_API_ADDRESS}getAllQuestion`)
+                    .then(response => {
+                        this.setState({serverData:response.data})
+                        saveBackendCheck('true')
+                        this.setState({backendChecked:true})
+                        return response.data
+                    }).catch((err) => {
 
-            axios.get(`${SERVER_API_ADDRESS}getAllQuestion`)
-                        .then(response => {
-                            this.setState({serverData:response.data})
-                            console.log(response.data)
-                            saveBackendCheck('true')
-                            this.setState({backendChecked:true})
-                            return response.data
-                        }).catch((err) => {
-
-                        })
-                
-
-        
-            db.initDB(() => {
-                db.countDbData().then((data) => {
-                    console.log(`here mf ${data.toString()}`)
-                })
-                this.getQuestions()
-                setTimeout(() => {
-                    this.setState({preLoadingView:false})
-                    this.setState({isLoading:false})
-
-                    
-                    setTimeout(() => {
-                        
-
-                        global.firstLoad = false
-                    },4000)
-                },1500)
-            }).then( () => {
-                //load data from back end and update
+                    })                        
+        db.initDB(() => {
+            db.countDbData().then((data) => {
+                // console.log(`here  ${data.toString()}`)
             })
-
+            this.getQuestions()
+            setTimeout(() => {
+                this.setState({preLoadingView:false})
+                this.setState({isLoading:false})                    
+                setTimeout(() => {                    
+                    global.firstLoad = false
+                },4000)
+            },1500)
+        }).then( () => {
+            //load data from back end and update
+        })
     }
-
-    componentDidMount () {
-        // this.saveQuestion()
-        // db.importTest()
-
+//=============================================================================================================   
+    updateDatabaseData () {
         
-        
+        var databaseQ = this.state.questions
+        var updateQ = this.state.serverData
 
-    }
+        for (i = 0; i < updateQ.length; i++){
+            var id = updateQ[i]._id
+            var firstNumber = updateQ[i].firstQuestionVoteNumber
+            var secondNumber = updateQ[i].secondQuestionVoteNumber
+            var firstQuestion = updateQ[i].firstQuestion
+            var secondQuestion = updateQ[i].secondQuestion
+            var addNewData = true
+            for ( j = 0; j < databaseQ.length; j++ ){
+                var checkID = databaseQ[j].questionId
 
-     
-     updateDatabaseData () {
-            
-            var databaseQ = this.state.questions
-            var updateQ = this.state.serverData
-
-            for (i = 0; i < updateQ.length; i++){
-                var id = updateQ[i]._id
-                var firstNumber = updateQ[i].firstQuestionVoteNumber
-                var secondNumber = updateQ[i].secondQuestionVoteNumber
-                var firstQuestion = updateQ[i].firstQuestion
-                var secondQuestion = updateQ[i].secondQuestion
-                var addNewData = true
-                for ( j = 0; j < databaseQ.length; j++ ){
-                    var checkID = databaseQ[j].questionId
-
-                    // console.log(`biacth ${id} + ${checkID}`)
-                    if (checkID == id){
-                        //update
-                        var voted = databaseQ[j].voted
-                        this.updateQuestionNumbers(id,firstNumber,secondNumber,voted)
-                        addNewData = false
-
-                    }
-                }
-                if (addNewData){
-                    this.saveQuestion(id,firstQuestion,secondQuestion,firstNumber,secondNumber)
+                if (checkID == id){
+                    //update
+                    var voted = databaseQ[j].voted
+                    this.updateQuestionNumbers(id,firstNumber,secondNumber,voted)
+                    addNewData = false
                 }
             }
-        
-     }
-
-     updateQuestionNumbers (id,firstNumber,secondNumber) {
+            
+            if (addNewData){
+                this.saveQuestion(id,firstQuestion,secondQuestion,firstNumber,secondNumber)                
+            }
+            
+        }        
+    }
+//=============================================================================================================
+    updateQuestionNumbers (id,firstNumber,secondNumber) {
         let data = {
             questionId: id,
             firstQuestionVoteNumber: firstNumber,
             secondQuestionVoteNumber: secondNumber,
-          }
-          db.updateQuestionVoteNumberForServerUpdate(data.questionId, data).then((result) => {
-            console.log(result); 
-          }).catch((err) => {
+            }
+            db.updateQuestionVoteNumberForServerUpdate(data.questionId, data).then((result) => {
+                console.log(result); 
+            }).catch((err) => {
+                console.log(err);
+        })
+    }
+//=============================================================================================================    
+    saveQuestion(questionId,firstQuestion,secondQuestion,firstQuestionVoteNumber,secondQuestionVoteNumber) {
+        let data = {
+            questionId: questionId,
+            firstQuestion: firstQuestion,
+            secondQuestion: secondQuestion,
+            firstQuestionVoteNumber: firstQuestionVoteNumber,
+            secondQuestionVoteNumber: secondQuestionVoteNumber,
+            voted:0,
+        }
+        db.addQuestion(data).then((result) => {
+            console.log(result);
+
+        }).catch((err) => {
             console.log(err);
-          })
-     }
-    
-saveQuestion(questionId,firstQuestion,secondQuestion,firstQuestionVoteNumber,secondQuestionVoteNumber) {
-    let data = {
-        questionId: questionId,
-        firstQuestion: firstQuestion,
-        secondQuestion: secondQuestion,
-        firstQuestionVoteNumber: firstQuestionVoteNumber,
-        secondQuestionVoteNumber: secondQuestionVoteNumber,
-        voted:0,
+        })
     }
-    db.addQuestion(data).then((result) => {
-        console.log(result);
-
-    }).catch((err) => {
-        console.log(err);
-    })
+//=============================================================================================================
+    getQuestions() {
+        let questions = [];
+        db.listAllUnvotedQuestions(questionDataJSON).then((data) => {
+            questions = data;
+            this.setState({currentQuestion:questions[0],questions:questions})
+            console.log(`mother fucker ${this.state.currentQuestion.questionId}`)
+        }).catch((err) => {
+            console.log(err);
+        })
     }
-
-getQuestions() {
-    let questions = [];
-    db.listAllUnvotedQuestions(questionDataJSON).then((data) => {
-        questions = data;
-        this.setState({currentQuestion:questions[0],questions:questions})
-        console.log(`mother fucker ${this.state.currentQuestion.questionId}`)
-    }).catch((err) => {
-        console.log(err);
-    })
-    }
-
+//=============================================================================================================
     updateQuestionVoteNumber() {
         let data = {
-          questionId: this.state.currentQuestion.questionId,
-          firstQuestionVoteNumber: this.state.currentQuestion.firstQuestionVoteNumber,
-          secondQuestionVoteNumber: this.state.currentQuestion.secondQuestionVoteNumber,
+            questionId: this.state.currentQuestion.questionId,
+            firstQuestionVoteNumber: this.state.currentQuestion.firstQuestionVoteNumber,
+            secondQuestionVoteNumber: this.state.currentQuestion.secondQuestionVoteNumber,
         }
         db.updateQuestionVoteNumber(data.questionId, data).then((result) => {
-          console.log(result); 
+            console.log(result); 
         }).catch((err) => {
-          console.log(err);
+            console.log(err);
         })
-      }
-
-    _onPressFirstQuestionButton() {   
+    }
+//=============================================================================================================
+    questionBtnPressFunctionality(questionNumber) {
         switch (this.state.viewState) {
             case "vote":    
                 Flurry.logEvent('Vote Question Event');                     
@@ -358,14 +349,20 @@ getQuestions() {
                     break
                 }
                 var question = this.state.currentQuestion
-                question.firstQuestionVoteNumber += 1
+                if(questionNumber == 1){
+                    question.firstQuestionVoteNumber += 1
+                }else if (questionNumber == 2){
+                    question.secondQuestionVoteNumber += 1
+                }
+
                 this.setState({viewState:"voted",currentQuestion:question})
                 this.updateQuestionVoteNumber()  
-                this.sendVote(1)    
-                this.checkForUpdateBatchData()
+                this.sendVote(questionNumber)    
+                this.checkForNextDataBatch()
                 break;
             case "voted":
-                if (!this.props.removeAdRegistered){
+                
+            if (!this.props.removeAdRegistered){
                     this.adCounterCheckup()
                 }
                 if (this.state.questions.length == index){
@@ -390,12 +387,14 @@ getQuestions() {
                 break;
         }
     }
+//=============================================================================================================
+    _onPressFirstQuestionButton() {           
+        this.questionBtnPressFunctionality(1)
+    }
+//=============================================================================================================
+    checkForNextDataBatch () {
 
-    checkForUpdateBatchData () {
-        console.log(`asshole ${this.state.index % 50}`)
-        console.log(`s ${this.state.updateIndex}`)
-        if (this.state.index % 50 != this.state.updateIndex){
-            console.log(`s ${this.state.updateIndex}`)
+        if (this.state.index % 50 != this.state.updateIndex){            
             const newUpdateIndex =+ 1
             this.setState({
                 updateIndex:newUpdateIndex,
@@ -419,7 +418,7 @@ getQuestions() {
                 })
         } 
     }
-
+//=============================================================================================================
     sendVote (voteNumber) {
         if (this.state.backendChecked){
             axios.post(`${SERVER_API_ADDRESS}vote`,{_id:this.state.currentQuestion.questionId,voteNumber:voteNumber}).then(
@@ -430,7 +429,7 @@ getQuestions() {
             saveOfflineVote({id:this.state.currentQuestion.questionId,voteNumber:voteNumber})
         }
     }
-
+//=============================================================================================================
     adCounterCheckup () {
         if (this.state.adCounter == AD_LIMIT ){
             this.setState({adCounter:0})
@@ -462,7 +461,7 @@ getQuestions() {
             this.setState({adCounter:counter})
         }
     }
-
+//=============================================================================================================
     getTapsellAd(videoType) {
         const adType = (videoType) ? ZONE_IDS.INTERSTITIAL_VIDEO : ZONE_IDS.INTERSTITIAL_BANNER
         
@@ -472,9 +471,9 @@ getQuestions() {
             }else{
                 this.setState({bannerAdId:adId})
             }
-         
+            
         },() => {console.log('no ad');
- 
+
         } , (zone,err) => {console.log('no network');
 
         } , (zoneId,err)=>{console.log('error:');
@@ -483,47 +482,11 @@ getQuestions() {
         console.log('expired');
         console.log('====================================');})
     }
-
+//=============================================================================================================
     _onPressSecondQuestionButton() {
-        switch (this.state.viewState) {
-            case "vote":   
-                Flurry.logEvent('Vote Question Event');
-                if (this.state.currentQuestion == null){
-                    this.setState({viewState:'finished'})
-                    return
-                }
-                
-                var question = this.state.currentQuestion
-                question.secondQuestionVoteNumber += 1                
-                this.setState({viewState:"voted",currentQuestion:question})
-                this.updateQuestionVoteNumber()
-                this.sendVote(2)           
-                break;
-            case "voted":
-                if (!this.props.removeAdRegistered){
-                    this.adCounterCheckup()
-                }
-                if (this.state.questions.length == this.state.index){
-                    this.setState({index:0})
-                    var question = this.state.questions[index + 1]
-                    this.setState({currentQuestion:question})
-
-                    break
-                }else{
-                    var index = this.state.index
-                    var question = this.state.questions[index + 1]
-                    this.setState({currentQuestion: question , index: index + 1})
-                }
-                this.setState({viewState:'vote'})
-                break;
-            case 'finished' :
-                break
-            default:
-
-                break;
-        }
+        this.questionBtnPressFunctionality(2)
     }
-
+//=============================================================================================================
     getCurrentFirstQuestion () {
         if (this.state.isLoading)
             return ''
@@ -534,7 +497,7 @@ getQuestions() {
             return 'سوال تمام شد :('
         }
     }
-
+//=============================================================================================================
     getCurrentFirstQuestionPrecentage () {
         
         if (this.state.currentQuestion != null){
@@ -552,7 +515,7 @@ getQuestions() {
         }
         return ''
     }
-
+//=============================================================================================================
     getCurrentSecondQuestionPrecentage () {
         if (this.state.currentQuestion != null){
             if (this.state.viewState == 'voted'){
@@ -568,7 +531,7 @@ getQuestions() {
         }
         return ''
     }
-
+//=============================================================================================================
     getCurrentSecondQuestion () {
         if (this.state.isLoading)
             return ''
@@ -579,9 +542,9 @@ getQuestions() {
             return 'سوال تمام شد؟ :('
         }
     }
-
-
-
+//=============================================================================================================
+// MARK : Render
+//=============================================================================================================
     render () {
 
         const netwokrPopUp = () => {
@@ -655,26 +618,26 @@ getQuestions() {
             
         }
 }
-
+//=============================================================================================================
 // Map State To Props (Redux Store Passes State To Component)
 const mapStateToProps = (state) => {
-    // Redux Store --> Component
+// Redux Store --> Component
+return {
+    isMainPageGameView: state.mainPageReducer.isMainPageGameView,
+    removeAdRegistered: state.mainPageReducer.removeAdRegistered,
+};
+};
+//=============================================================================================================
+// Map Dispatch To Props (Dispatch Actions To Reducers. Reducers Then Modify The Data And Assign It To Your Props)
+const mapDispatchToProps = (dispatch) => {
+// Action
     return {
-      isMainPageGameView: state.mainPageReducer.isMainPageGameView,
-      removeAdRegistered: state.mainPageReducer.removeAdRegistered,
+    showAddQuestion: () => dispatch(showAddQuestion()),
+    hideAddQuestion: () => dispatch(hideAddQuestion()),
+    RegisteredForAdRemove: () => dispatch(RegisteredForAdRemove()),
     };
-  };
-  
-  // Map Dispatch To Props (Dispatch Actions To Reducers. Reducers Then Modify The Data And Assign It To Your Props)
-  const mapDispatchToProps = (dispatch) => {
-    // Action
-      return {
-        showAddQuestion: () => dispatch(showAddQuestion()),
-        hideAddQuestion: () => dispatch(hideAddQuestion()),
-        RegisteredForAdRemove: () => dispatch(RegisteredForAdRemove()),
-     };
-  };
-  
-  // Exports
-  export default connect(mapStateToProps, mapDispatchToProps)(MainGamePage);
+};
+
+// Exports
+export default connect(mapStateToProps, mapDispatchToProps)(MainGamePage);
 
