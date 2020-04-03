@@ -39,7 +39,8 @@ async function generateReport(){
     await pipeline(questionCursor,csvStream,fs.createWriteStream(dst))
     console.log('report generated')
 }
-
+//=====================================================================
+// ======================= Initialization ======================= 
 mongoose.Promise = global.Promise
 mongoose.connect(config.DATABASE , { useNewUrlParser: true,useUnifiedTopology: true}).then(() => {
 console.log("Connected to Database");
@@ -65,9 +66,8 @@ app.use((req, res, next) => {
     next();
   });
 
-
+//=====================================================================
 // ======================= Post =======================
-
 // Question API :
 app.post('/api/postQuestion', (req,res) => {
     const question = new Question(req.body)
@@ -83,7 +83,7 @@ app.post('/api/postQuestion', (req,res) => {
     })
 
 })
-
+//=====================================================================
 // User API :
 
 app.post('/api/createUser', (req,res) => {
@@ -99,7 +99,7 @@ app.post('/api/createUser', (req,res) => {
         })
     })
 })
-
+//=====================================================================
 app.post('/api/adminLogin', (req,res) => {
     console.log('the fuck')
     User.find( {$and : [{username:req.body.username},{password:req.body.password},{isAdmin:true}]}, (err,doc) => {
@@ -117,7 +117,7 @@ app.post('/api/adminLogin', (req,res) => {
         })
     })
 })
-
+//=====================================================================
 app.post('/api/vote', (req,res) => {
     
     if (req.body._id == null){
@@ -176,8 +176,6 @@ app.post('/api/vote', (req,res) => {
     })
 
 })
-
-
 // ======================= Get ==========================
 
 // Get Unverified Questions
@@ -187,8 +185,7 @@ app.get('/api/getUnverifiedQuestions',(req,res) => {
         res.send(doc)
     })
 })
-
-
+//=====================================================================
 app.get('/api/getQuestionById' , (req,res) => {
     let id = req.query.id
     console.log(id)
@@ -197,7 +194,7 @@ app.get('/api/getQuestionById' , (req,res) => {
         res.send(doc)
     })
 })
-
+//=====================================================================
 app.get('/api/getAllQuestion' , (req,res) => {
     console.log("mother fucker")
     Question.find().exec((err,doc) => 
@@ -208,14 +205,14 @@ app.get('/api/getAllQuestion' , (req,res) => {
         res.send(doc)
     })
 })
-
+//=====================================================================
 app.get('/api/getAllVerifiedQuestion' , (req,res) => {
     Question.find({isVerified:{$eq: true}} , (err,doc) => {
         if (err) return res.status(400).send(err)
         res.send(doc)
     })
 })
-
+//=====================================================================
 app.get('/api/getBatchQuestionUpdate' , (req,res) => {
     var arr = JSON.parse(req.query.questionBatch);
     var arrayToUpdate = []
@@ -231,7 +228,7 @@ app.get('/api/getBatchQuestionUpdate' , (req,res) => {
         res.send(doc)
     })
 })
-
+//=====================================================================
 app.get('/api/getQuestionAfterBundle' , (req,res) => {
     Question.find({bundleVersion: {$gt : req.query.bundleVersion}} , (err,doc) =>{
         if (err){
@@ -240,7 +237,7 @@ app.get('/api/getQuestionAfterBundle' , (req,res) => {
         res.send(doc)
     })
 })
-
+//=====================================================================
 app.get('/api/getQuestion' , (req,res) => {
     let skip = parseInt(req.query.skip)
     let limit = parseInt(req.query.limit)
@@ -251,7 +248,7 @@ app.get('/api/getQuestion' , (req,res) => {
         res.send(doc)
     })
 })
-
+//=====================================================================
 // USER API :
 
 app.get('/api/getAllUsers' , (req,res) => {
@@ -263,7 +260,7 @@ app.get('/api/getAllUsers' , (req,res) => {
         res.send(doc)
     })
 })
-
+//=====================================================================
 // ======================= Update ==========================
 // QUESTION API :
 app.post('/api/validateQuestionById', (req,res)=> {
@@ -284,7 +281,7 @@ app.post('/api/validateQuestionById', (req,res)=> {
         })
     })
 })
-
+//=====================================================================
 app.post('/api/validateAll', (req,res)=> {
 
         Question.find({isVerified:false},(err,doc) => {
@@ -309,8 +306,7 @@ app.post('/api/validateAll', (req,res)=> {
                 })
     })
 })
-
-
+//=====================================================================
 // USER API :
 app.post('/api/makeUserAdmingByID', (req,res)=> {
 
@@ -326,6 +322,7 @@ app.post('/api/makeUserAdmingByID', (req,res)=> {
         })
     })
 })
+//=====================================================================
 app.post('/api/addToUserQuestionById', (req,res)=> {
     if (req.body.q_id == null){
         res.status(400).send({
@@ -344,7 +341,7 @@ app.post('/api/addToUserQuestionById', (req,res)=> {
         })
     })
 })
-
+//=====================================================================
 app.post('/api/addBookmark', (req,res)=> {
     if (req.body.q_id == null){
         res.status(400).send({
@@ -367,13 +364,13 @@ app.delete("/api/deleteQuestionById",(req,res) => {
         res.send(doc)
     })
 })
-
+//=====================================================================
 app.delete("/api/deleteAllQuestion",(req,res) => {
     Question.deleteMany({},(err) =>  {
         console.log(err)
     })
 })
-
+//=====================================================================
 // USER API :
 app.delete("/api/deleteUserById",(req,res) => {
     User.findByIdAndDelete(req.body._id,(err,doc) => {
