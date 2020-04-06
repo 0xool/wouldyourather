@@ -87,6 +87,25 @@ app.post('/api/postQuestion', (req,res) => {
 // User API :
 
 app.post('/api/createUser', (req,res) => {
+    if (req.body.username == null) {
+        res.status(400).send({
+            errorMessage : 'No username  has been entered'
+        })
+        return
+    }
+    if (req.body.password == null) {
+        res.status(400).send({
+            errorMessage : 'No Password has been entered'
+        })
+        return
+    }
+    if (req.body.email == null) {
+        res.status(400).send({
+            errorMessage : 'No Emai has been entered'
+        })
+        return
+    }
+    
     const user = new User(req.body)
     user.save((err,doc) => {
         if (err){
@@ -99,9 +118,9 @@ app.post('/api/createUser', (req,res) => {
         })
     })
 })
+
 //=====================================================================
 app.post('/api/adminLogin', (req,res) => {
-    console.log('the fuck')
     User.find( {$and : [{username:req.body.username},{password:req.body.password},{isAdmin:true}]}, (err,doc) => {
         
         if (doc.length > 0){
@@ -133,7 +152,6 @@ app.post('/api/vote', (req,res) => {
         return
     }
     var number = parseInt(req.body.voteNumber)
-    console.log(number)
     switch (number) {
         case Number(1):
             Question.findByIdAndUpdate(req.body._id,{ $inc : {firstQuestionVoteNumber:1}}, {new:true} , (err,doc) => {
@@ -170,8 +188,6 @@ app.post('/api/vote', (req,res) => {
     //add one vote to secondQuestionVoteNumber if 2 
     User.find({_id: req.body._id}, (err,doc) => {
         if (err) return res.status(400).send(err)
-
-
         
     })
 
@@ -187,12 +203,30 @@ app.get('/api/getUnverifiedQuestions',(req,res) => {
 })
 //=====================================================================
 app.get('/api/getQuestionById' , (req,res) => {
-    let id = req.query.id
-    console.log(id)
+    let id = req.query.id    
     Question.findById(id , (err,doc) => {
         if (err) return res.status(400).send(err)
         res.send(doc)
     })
+})
+//=====================================================================
+app.get('api/getUserQuestionsByID' , (req,res) => {
+    let id = req.query.id
+    User.findById(id,(err,doc) => {
+        if (err) return res.status(400).send(err)
+        res.send(doc)
+    })  
+})
+//=====================================================================
+app.get('api/getUserBookmarksByID' , (req,res) => {
+    let id = req.query.id
+    User.findById(id,(err,doc) => {
+        if (err) return res.status(400).send(err)
+        res.json({
+            response: 'success',
+            doc: doc,
+        })
+    })  
 })
 //=====================================================================
 app.get('/api/getAllQuestion' , (req,res) => {
@@ -219,7 +253,6 @@ app.get('/api/getBatchQuestionUpdate' , (req,res) => {
     for (q of arr){
         arrayToUpdate.push(q.questionId)
     }
-    console.log(arrayToUpdate)
 
     Question.find({_id:{$in:arrayToUpdate}},(err,doc) => {
         
@@ -258,6 +291,32 @@ app.get('/api/getAllUsers' , (req,res) => {
             res.status(400).send(err)
         }
         res.send(doc)
+    })
+})
+//=====================================================================
+app.get('/api/getAllUserQuestions' , (req,res) => {
+    User.findById(req.query._id).exec((err,doc) => 
+    {
+        if (err || doc == null){
+            res.status(400).send(err)
+        }   
+
+        Question.find({$and :   [{'_id' : {$in : doc.questionId}},{isVerified:true}]},(err,qDoc) => {
+            res.send(qDoc)                
+        })                
+    })
+})
+//=====================================================================
+app.get('/api/getAllUserBookmarks' , (req,res) => {
+    User.findById(req.query._id).exec((err,doc) => 
+    {
+        if (err || doc == null){
+            res.status(400).send(err)
+        }   
+                 
+        Question.find({$and :   [{'_id' : {$in : doc.bookmakrs}},{isVerified:true}]},(err,qDoc) => {
+            res.send(qDoc)                
+        })                
     })
 })
 //=====================================================================
@@ -309,8 +368,6 @@ app.post('/api/validateAll', (req,res)=> {
 //=====================================================================
 // USER API :
 app.post('/api/makeUserAdmingByID', (req,res)=> {
-
-
     User.findByIdAndUpdate(req.body._id, {isAdmin:true}, {new:true}, (err,doc)=>{
         if (err){
             return res.status(400).send(err)
@@ -323,37 +380,92 @@ app.post('/api/makeUserAdmingByID', (req,res)=> {
     })
 })
 //=====================================================================
-app.post('/api/addToUserQuestionById', (req,res)=> {
-    if (req.body.q_id == null){
-        res.status(400).send({
-            errorMessage : 'No Question Id has been entered'
-        })
-        return
-    }
-    User.findByIdAndUpdate(req.body._id, {$addToSet : {questionId:req.body.q_id}}, {new:true}, (err,doc)=>{
-        if (err){
-            return res.status(400).send(err)
-        }
-
-        res.json({
-            success:true,
-            doc:doc
-        })
+app.post("/api/deleteUserQuestionById",(req,res) => {
+    User.findByIdAndUpdate(req.body._id,{$pullAll: {questionId:req.body.questionId}},(err,doc) => {
+        if (err) res.status(400).send(err)
+        res.send(doc)
     })
 })
 //=====================================================================
+app.delete("/api/deleteUserBookmarkById",(req,res) => {
+    User.findByIdAndDelete(req.body._id,(err,doc) => {
+        if (err) res.status(400).send(err)
+        res.send(doc)
+    })
+})
+//=====================================================================
+app.post('/api/addToUserQuestionById', (req,res)=> {
+    if (req.body.q_id == null){
+        res.status(400).send({
+            errorMessage : 'No Question Id(q_id) has been entered'
+        })
+        return
+    }
+    if (req.body._id == null) {
+        res.status(400).send({
+            errorMessage : 'No User Id(_id) has been entered'
+        })
+        return
+    }
+
+    Question.findById(req.body.q_id,(err,doc) => {
+
+        if (err || doc == null){
+            return res.status(400).json({
+                message : 'question does not exist',
+                err : err,
+            })            
+        }
+        User.findByIdAndUpdate(req.body._id, {$addToSet : {questionId:req.body.q_id}}, {new:true}, (err,doc)=>{
+            if (err){
+                return res.status(400).send(err)
+            }
+    
+            res.json({
+                success:true,
+                doc:doc
+            })
+        })
+
+    })
+
+
+
+})
+//=====================================================================
 app.post('/api/addBookmark', (req,res)=> {
+
     if (req.body.q_id == null){
         res.status(400).send({
             errorMessage : 'No Question Id has been entered'
         })
         return
     }
-    User.findByIdAndUpdate(req.body._id, {$addToSet : {bookmakrs:req.body.q_id}}, {new:true}, (err,doc)=>{
-        res.json({
-            success:true,
-            doc:doc
+    if (req.body._id == null){
+        res.status(400).send({
+            errorMessage: 'No User ID has been entered'
         })
+    }
+
+    Question.findById(req.body.q_id,(err,doc) => {
+
+        if (err || doc == null){
+            return res.status(400).json({
+                message : 'question does not exist',
+                err : err,
+            })            
+        }
+        User.findByIdAndUpdate(req.body._id, {$addToSet : {bookmakrs:req.body.q_id}}, {new:true}, (err,doc)=>{
+            if (err){
+                return res.status(400).send(err)
+            }
+    
+            res.json({
+                success:true,
+                doc:doc
+            })
+        })
+
     })
 })
 // ======================= Delete ==========================
@@ -379,7 +491,7 @@ app.delete("/api/deleteUserById",(req,res) => {
     })
 })
 
-
+//=====================================================================
 
 
 
