@@ -3,13 +3,13 @@ import axios from 'axios'
 import '../../App.css';
 import { Link } from 'react-router-dom';
 import * as STATICS from '../../Const/Const';
-
+import Header from '../Header/Header'
 
 
 const firstQuestionComponent = (firstQuestionEnter) => {
     return (
         <div className='Validate-first-question'>
-            <input type="text"  onChange={firstQuestionEnter} />
+            <input type="text" style={{width:'80%',height:50, textAlign:'center',backgroundColor:'#292929',place:'white',borderColor:'#292929',color:'white'}} placeholder='سوال اول'  onChange={firstQuestionEnter} />
         </div>
     )
 }
@@ -17,7 +17,7 @@ const firstQuestionComponent = (firstQuestionEnter) => {
 const secondQuestionComponent = (secondQuestioEnter) => {
     return (
         <div className='Validate-second-question'>
-            <input type="text"  onChange={secondQuestioEnter} />
+            <input type="text" style={{width:'80%',height:50, textAlign:'center',backgroundColor:'#292929',place:'white',borderColor:'#292929',color:'white'}} placeholder='سوال دوم'  onChange={secondQuestioEnter} />
         </div>
     )
 }
@@ -52,7 +52,7 @@ const mainView = (firstQuestionEnter,secondQuestionEnter,sendQuestion) => {
         return (
             <div className='Validate-container'>
                 <div className="Validate-logo">
-                    .سوال های خود را وارد کنید
+                    .سوال خود را وارد کنید
                 </div>
                 {firstQuestionComponent(firstQuestionEnter)}
                 {orQuestionComponent()}
@@ -113,6 +113,7 @@ class AddQuestion extends Component {
 
         return (
             <div style={{width:'100%',height:'100%'}}>
+                <Header/>
                 {mainView(this.firstQuestionEnter,this.secondQuestionEnter,this.sendQuestion)}
             </div>
         )

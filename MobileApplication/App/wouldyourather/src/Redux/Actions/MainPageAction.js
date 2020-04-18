@@ -11,4 +11,12 @@ export const showAddQuestion = () => ({
   export const registeredForAdRemove = () => ({
     type: 'set-ad-registered',
   });
+
+  export const hideProfileView = () => ({
+    type: 'hide-profile-view',
+  });
+  
+  export const showProfileView = () => ({
+    type: 'show-profile-view',
+  });
   

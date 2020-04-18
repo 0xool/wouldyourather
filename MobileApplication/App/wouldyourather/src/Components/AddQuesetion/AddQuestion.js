@@ -24,6 +24,8 @@ import {
 import Flurry from 'react-native-flurry-sdk'
 import axios from 'react-native-axios'
 import {goHome, goAddQuestion} from '../../Screens/Navigation/Navigation'
+import AsyncStorage from '@react-native-community/async-storage';
+
 
 import { SERVER_API_ADDRESS } from '../../Utilities/Constants';
 import { connect } from 'react-redux';
@@ -117,6 +119,8 @@ class AddQuestion extends Component {
         this.firstQuestionTextChange = this.firstQuestionTextChange.bind(this)
         this.secondQuestionTextChange = this.secondQuestionTextChange.bind(this)
         this.handleBackButtonClick = this.handleBackButtonClick.bind(this);
+        this.getUserInfo = this.getUserInfo.bind(this);
+        this.submit = this.submit.bind(this);
 
         //load data from db and show
         }
@@ -151,9 +155,27 @@ class AddQuestion extends Component {
         this.setState({secondQuestionInput:text})
     }
 
+    async getUserInfo(qID){
+        try {
+            const username = await AsyncStorage.getItem('username')
+            const id = await AsyncStorage.getItem('userID')
+            if(username !== null  && id !== null) {
+                axios.post(`${SERVER_API_ADDRESS}addToUserQuestionById`,{q_id:qID,_id:id}).then(() => {
+                }).catch((err) => {
+                    console.log(err)
+                })     
+            }else {
+                //major erro if u are here
+            }
+        } catch(e) {
+            // error reading value
+            console.log(e)
+        }
+    }
+
     submit (){
         Flurry.logEvent('Add Question Event');
-        axios.post(`${SERVER_API_ADDRESS}postQuestion`,{firstQuestion:this.state.firstQuestionInput,secondQuestion:this.state.secondQuestionInput}).then(
+        axios.post(`${SERVER_API_ADDRESS}postQuestion`,{firstQuestion:this.state.firstQuestionInput,secondQuestion:this.state.secondQuestionInput}).then( (res) => {
             Alert.alert(
                 'سوال اضافه شد',
                 'سوال شما با موفقیت ثبت شد!',
@@ -167,7 +189,9 @@ class AddQuestion extends Component {
                 ],
                 {cancelable: false},
               )
-        ).catch(err => {
+                //if use has logged in add question to user                
+                this.getUserInfo(res.data.id)
+            }).catch(err => {
             Alert.alert(
                 'اشکال در بر قراری ارتباط با سرور',
                 'سوال ثبت نشد',
@@ -176,9 +200,7 @@ class AddQuestion extends Component {
                 ],
                 {cancelable: false},
               )
-            })
-
-        
+            }) 
     }
 
     backBtnClicked (){
@@ -209,7 +231,7 @@ class AddQuestion extends Component {
                                 <View style={styles.footerView}></View>
                                 <TouchableHighlight onPress={() => {if (this.state.isLoading) this.submit()}} style={{alignItems:'center',justifyContent:'center',borderRadius:25,position:'absolute',backgroundColor:'white',width:50,height:50,right:16,bottom:'10%'}}>
                                     <Image style={{height:'50%',width:'50%'}} source={plusImage}></Image>
-                                    </TouchableHighlight>    
+                                </TouchableHighlight>    
                                 <TouchableHighlight onPress={() => {if (this.state.isLoading) this.props.hideAddQuestionRedux()}} style={{alignItems:'center',justifyContent:'center',borderRadius:25,position:'absolute',backgroundColor:'white',width:50,height:50,left:16,bottom:'10%'}}>
                                     <Image style={{height:'50%',width:'50%'}} source={backImage}></Image>
                                     </TouchableHighlight>    

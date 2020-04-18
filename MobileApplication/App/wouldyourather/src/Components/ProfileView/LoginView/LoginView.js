@@ -1,24 +1,33 @@
 import React, { Component } from 'react'
 import {
+    SafeAreaView,
     StyleSheet,
     View,
+    Image,
     Alert,
     Text,
-    TouchableHighlight,    
+    StatusBar,
+    TouchableHighlight,
+    TouchableOpacity,
+    Animated,
+    Button,
     Keyboard,
     TextInput,
     TouchableWithoutFeedback,
     } from 'react-native';
-import {changeViewToSignup,changeViewToLogin,changeViewToProfile} from '../../Redux/Actions/ProfilePageAction'
+import {changeViewToSignup,changeViewToLogin,changeViewToProfile} from '../../../Redux/Actions/ProfilePageAction'
+
 import { connect } from 'react-redux';
 import Flurry from 'react-native-flurry-sdk';
 import axios from 'react-native-axios'
-import { SERVER_API_ADDRESS } from '../../Utilities/Constants';
+
+import { SERVER_API_ADDRESS } from '../../../Utilities/Constants';
 import AsyncStorage from '@react-native-community/async-storage';
+import {hideProfileView} from '../../../Redux/Actions/MainPageAction'
 
 
     const styles = StyleSheet.create({
-        singupBackground: {
+        loginBackground: {
             justifyContent: 'center',
             alignItems: 'center',
             backgroundColor: '#292929',
@@ -33,13 +42,13 @@ import AsyncStorage from '@react-native-community/async-storage';
             left:0,
             backgroundColor:'#2467e2'    
         },
-        singupMenu: {
+        loginMenu: {
             borderRadius: 10,
             backgroundColor: '#d42222',                    
             justifyContent: 'center',
             alignItems: 'center',
             width:'80%',
-            height:'75%',
+            height:'65%',
         },
         usernameView: {
             margin: 8,
@@ -52,7 +61,7 @@ import AsyncStorage from '@react-native-community/async-storage';
             alignItems: 'center',
         },
         passwordView: {
-            margin: 8,
+            margin: 20,
             backgroundColor: '#292929',
             height:50,
             width: '80%',
@@ -61,17 +70,7 @@ import AsyncStorage from '@react-native-community/async-storage';
             justifyContent: 'center',
             alignItems: 'center',
         },
-        emailView: {
-            margin: 8,
-            backgroundColor: '#292929',
-            height:50,
-            width: '80%',
-            borderRadius: 10,
-            zIndex:5,
-            justifyContent: 'center',
-            alignItems: 'center',
-        },
-        singupMenuText: {
+        loginMenuText: {
             // position:'absolute',
             color:'white',
             // top:'10%',
@@ -80,7 +79,7 @@ import AsyncStorage from '@react-native-community/async-storage';
             fontSize: 30,
             marginBottom:8,
         },
-        singupMenuBottonText: {
+        loginMenuBottonText: {
             // position:'absolute',
             color:'white',
             // top:'10%',
@@ -104,8 +103,30 @@ import AsyncStorage from '@react-native-community/async-storage';
             alignItems: 'center',
             textAlign:'center',
             fontSize: 15,
-            color:'white',            
+            color:'white',
+            
+
         },
+        
+        
+        
+        headerView: {
+            // backgroundColor: '#292929',
+            // height: 50,  
+            // justifyContent: 'center',
+            // alignItems: 'center',
+        },
+        footerView: {
+            backgroundColor: '#292929',
+            height: 70,  
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        questionText: {
+            alignSelf: 'center',
+            color:'white',
+            fontSize:20,
+        }
     });
 
 //=============================================================================================================
@@ -121,7 +142,10 @@ const saveUserInfo = async (username,email,userID) => {
     }
 }
 
-class SignupView extends Component {
+var backImage = require('../../../Images/back.png')
+
+
+class LoginView extends Component {
     
     constructor(){
         super()
@@ -129,16 +153,13 @@ class SignupView extends Component {
             isLoading: true,
             username:'',
             password:'',
-            repeatPassword:'',
-            email:'',
         }
 
         this.usernameTextChange = this.usernameTextChange.bind(this)
         this.passwordTextChange = this.passwordTextChange.bind(this)
-        this.repeatPasswordTextChange = this.repeatPasswordTextChange.bind(this)
-        this.emailTextChange = this.emailTextChange.bind(this)
-        this.backToLogin = this.backToLogin.bind(this)
+        this.login = this.login.bind(this)
         this.signup = this.signup.bind(this)
+        this.backToGame = this.backToGame.bind(this)
     }
 
     passwordTextChange(text) {
@@ -153,58 +174,22 @@ class SignupView extends Component {
         })
     }
 
-    repeatPasswordTextChange(text) {
-        this.setState({
-            repeatPassword: text,
-        })
-    }
-
-    emailTextChange(text) {
-        this.setState({
-            email: text,
-        })
-    }
-
-    signup() {
+    login() {
         if (this.state.username == null || this.state.username == ''){
-            Alert.alert('خطا در نام کاربری' , 'نام کاربری خود را وارد کنید',[{text:'باشه'}])
+            Alert.alert('خطا در ایمیل' , 'ایمیل خود را وارد کنید',[{text:'باشه'}])
             return
         }else if (this.state.password == null || this.state.password == ''){
             Alert.alert('خطا در رمز عبور' , 'رمز عبور خود را وارد کنید',[{text:'باشه'}])
             return
-        }else if (this.state.password == null || this.state.password == ''){
-            Alert.alert('خطا در رمز عبور' , 'تکرار رمز عبور خود را وارد کنید',[{text:'باشه'}])
-            return
-        }else if (this.state.password == null || this.state.password == ''){
-            Alert.alert('خطا در ایمیل' , 'ایمیل خود را وارد کنید',[{text:'باشه'}])
-            return
-        }
-
-        if (this.state.password != this.state.repeatPassword){
-            Alert.alert('خطا در رمز عبور' , 'رمز عبور با تکرار یکسان نمی باشد',[{text:'باشه'}])
-            return
         }
 
         this.setState({isLoading:true})
-        Flurry.logEvent('SignUp Event');
-        axios.post(`${SERVER_API_ADDRESS}createUser`,{username:this.state.username,password:this.state.password,email:this.state.email}).then( (res) => {
-            
-            this.setState({isLoading:false}) 
-            saveUserInfo(this.state.username,this.state.email,res.data.id.toString()) 
-
+        Flurry.logEvent('Login Event');
+        axios.post(`${SERVER_API_ADDRESS}userLogin`,{email:this.state.username,password:this.state.password}).then((res) => {            
+            saveUserInfo(res.data.doc.username.toString(),res.data.doc.email.toString(),res.data.doc._id.toString())
             this.props.changeViewToProfile()
-            this.props.reload()    
-            Alert.alert(
-                'حساب شما با موفقیت ساخته شد',
-                'خوش آمدید',
-                [ 
-                 {text: 'باشه'}
-                ],
-                {cancelable: false},
-              )
-        }).catch(err => {    
-            this.setState({isLoading:false})  
-            console.log(err)      
+            this.props.reload()
+        }).catch(err => {            
             Alert.alert(
                 'اشکال در بر قراری ارتباط با سرور',
                 '',
@@ -216,36 +201,37 @@ class SignupView extends Component {
             })
     }
 
-    backToLogin() {
+    signup() {
         this.setState({isLoading:false})   
-        this.props.changeViewToLogin()     
+        this.props.changeViewToSignup()
+    }
+
+    backToGame() {
+        this.props.hideProfileView()
     }
     
     render () {
         return (
             <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} style = { {backgroundColor:'#292929' , height:'100%' , width:'100%'}}>
-                <View style={styles.singupBackground}>                    
-                    <View style={styles.singupMenu}>
+                <View style={styles.loginBackground}> 
+                    <TouchableOpacity onPress={() => {this.backToGame()}} style={{alignItems:'center',justifyContent:'center',borderRadius:25,position:'absolute',backgroundColor:'white',width:30,height:30,left:16,top:16}}>
+                    <Image style={{height:'50%',width:'50%'}} source={backImage}></Image>
+                    </TouchableOpacity>                    
+                    <View style={styles.loginMenu}>
                         <View style={styles.backgroundEffect}/>
-                        <Text style={styles.singupMenuText}>ثبت نام در کدومش</Text>
+                        <Text style={styles.loginMenuText}>ورود به کدومش</Text>
                         <View style={styles.usernameView}>
-                            <TextInput  ref={input => { this.firsTextInput = input }} onChangeText={text => this.usernameTextChange(text)} placeholder='نام کاربری' style={styles.inputStyle} placeholderTextColor="white"></TextInput>
+                            <TextInput  ref={input => { this.firsTextInput = input }} onChangeText={text => this.usernameTextChange(text)} placeholder='ایمیل' style={styles.inputStyle} placeholderTextColor="white"></TextInput>
                         </View>
                         <View style={styles.passwordView}>
-                            <TextInput secureTextEntry={true} ref={input => { this.passwordTextInput = input }} onChangeText={text => this.passwordTextChange(text)} placeholder='رمز عبور' style={styles.inputStyle} placeholderTextColor="white"></TextInput>
-                        </View>
-                        <View style={styles.passwordView}>
-                            <TextInput secureTextEntry={true} ref={input => { this.repeatPasswordTextInput = input }} onChangeText={text => this.repeatPasswordTextChange(text)} placeholder=' تکرار رمز عبور ' style={styles.inputStyle} placeholderTextColor="white"></TextInput>
-                        </View>
-                        <View style={styles.emailView}>
-                            <TextInput ref={input => { this.emailTextInput = input }} onChangeText={text => this.emailTextChange(text)} placeholder='ایمیل' style={styles.inputStyle} placeholderTextColor="white"></TextInput>
+                            <TextInput secureTextEntry={true} ref={input => { this.firsTextInput = input }} onChangeText={text => this.passwordTextChange(text)} placeholder='رمز عبور' style={styles.inputStyle} placeholderTextColor="white"></TextInput>
                         </View>
                         <View style={styles.buttonView}>
-                            <TouchableHighlight onPress={() => {if (this.state.isLoading) this.signup()}} style={{backgroundColor: '#292929',alignItems:'center',justifyContent:'center',borderRadius:10,position:'absolute',width:'45%',height:'40%',right:8}}>
-                                <Text style={styles.singupMenuBottonText}>ثبت نام</Text>
+                            <TouchableHighlight onPress={() => {if (this.state.isLoading) this.login()}} style={{backgroundColor: '#292929',alignItems:'center',justifyContent:'center',borderRadius:10,position:'absolute',width:'45%',height:'40%',right:8}}>
+                                <Text style={styles.loginMenuBottonText}>ورود</Text>
                             </TouchableHighlight>
-                            <TouchableHighlight onPress={() => {if (this.state.isLoading) this.backToLogin()}} style={{backgroundColor: '#292929',alignItems:'center',justifyContent:'center',borderRadius:10,position:'absolute',width:'45%',height:'40%',left:8}}>
-                                <Text style={styles.singupMenuBottonText}>بازگشت</Text>
+                            <TouchableHighlight onPress={() => {if (this.state.isLoading) this.signup()}} style={{backgroundColor: '#292929',alignItems:'center',justifyContent:'center',borderRadius:10,position:'absolute',width:'45%',height:'40%',left:8}}>
+                                <Text style={styles.loginMenuBottonText}>ثبت نام</Text>
                             </TouchableHighlight>
                         </View>
                     </View>
@@ -254,7 +240,6 @@ class SignupView extends Component {
         )
     }
 }
-
 //=============================================================================================================
 // Map State To Props (Redux Store Passes State To Component)
 const mapStateToProps = (state) => {
@@ -271,8 +256,9 @@ const mapDispatchToProps = (dispatch) => {
         changeViewToSignup: () => dispatch(changeViewToSignup()),
         changeViewToLogin: () => dispatch(changeViewToLogin()),
         changeViewToProfile: () => dispatch(changeViewToProfile()),
+        hideProfileView: () => dispatch(hideProfileView()),
     };
 };
 
 // Exports
-export default connect(null, mapDispatchToProps)(SignupView);
+export default connect(mapStateToProps, mapDispatchToProps)(LoginView);

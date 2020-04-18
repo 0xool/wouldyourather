@@ -4,8 +4,6 @@ import React from 'react';
 import { PersistGate } from 'redux-persist/es/integration/react'
 import { Provider } from 'react-redux';
 
-import LoginView from './src/Components/ProfileView/LoginView'
-
 // Imports: Screens
 
 
@@ -21,7 +19,7 @@ export default App = () => {
         loading={null}
         persistor={persistor}
       >
-        <LoginView />
+        <MCV />
       </PersistGate>
     </Provider>
   );

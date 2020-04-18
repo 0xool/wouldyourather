@@ -47,7 +47,7 @@ body {
 .Validate-container {
   display: grid;
   grid-template-columns: 2fr 3fr 1fr 3fr 2fr;
-  grid-template-rows: 1fr 2fr 1fr;
+  grid-template-rows: 1.5fr 2.5fr 1fr;
   grid-template-areas: 
         "t logo logo logo tt"
         "space1 firstq orspace secondq space"
@@ -57,7 +57,7 @@ body {
     z-index: 0;
     height: 100vh;
     width: 100%;
-  background-color: #61dafb;
+  background-color: #292929;
 }
 
 .Validate-first-question{
@@ -83,7 +83,7 @@ body {
 }
 
 .Validate-or {
-  background-color: #282c34;
+  background-color: #284888;
   color: white;
   display: flex;
   border-radius: 50%;
@@ -127,6 +127,7 @@ body {
 .Validate-decline {
   display: flex;
   color: white;
+  text-decoration: none;
   grid-area: decline;
   background-color: #c00000;
   border-radius: 50%;
@@ -149,7 +150,9 @@ body {
 }
 
 .Validate-back {
-  background-color: #282c34;
+  border-radius: 10px;
+  text-decoration: none;
+  background-color: #1c3b79;
   display: flex;
   color: white;
   grid-area: t2;
@@ -177,72 +180,113 @@ body {
 }
 
 .Main-login-panel {
+  position: relative;
   grid-area: login;
-  background-color: #61dafb;
+  background-color: #2467e2;
   display: grid;
-  grid-template-columns: 1fr 60% 10px 20% 1fr;
-  grid-template-rows: 1fr 25% 25% 3fr;
+  grid-template-columns: 1fr 40% 10px 40% 1fr;
+  grid-template-rows: 1fr 8% 25% 3fr;
   grid-template-areas: 
         "f free free free fe"
-        "f usernameinput v username fe"
-        "f passwordinput b password fe"
-        "f sub sub sub fe";
+        "f password v username fe"
+        "f passwordinput b usernameinput fe"
+        "f signup d sub fe";
   height: 100%;
   width: 100%;
   grid-gap: 4px;
 }
 
+.Main-login-logo-text {
+  color :white;
+  font-size: 30px;
+  grid-area: free;
+  text-align: center;
+  z-index: 1;
+  margin-top: 35px;
+}
+
 .Main-login-panel-username {
   display: flex;
+  flex-direction: column;
   grid-area: username;
-  background-color: #c00000;
+  color: white;  
   align-items: center;  
-  justify-content: center;
+  justify-content: flex-end;
+  z-index: 1;
 }
 
 .Main-login-panel-password {
   display: flex;
+  flex-direction: column;
   grid-area: password;
-  background-color: #0073c0;
+  color: white;  
   align-items: center;  
-  justify-content: center;
+  justify-content: flex-end;
+  z-index: 1;
 }
 
 .Main-login-panel-username-input {
   display: flex;
   grid-area: usernameinput;
-  background-color: #26c000;
   align-items: center;  
   justify-content: center;
+  z-index: 1;
 }
 
 .Main-login-panel-password-input {
   display: flex;
   grid-area: passwordinput;
-  background-color: #c00096;
   align-items: center;  
   justify-content: center;
+  z-index: 1;
 }
 
 .Main-login-logo {
+  position: relative;
   color: white;
-  grid-area: log;
   font-size: 50px;
   align-items: center;  
   justify-content: center;
   align-self: center;
   justify-self: center;
+  text-align: center;
 }
 
 .Main-login-panel-submit {
   display: flex;
+  align-self: center;
+  justify-self: center;
   grid-area: sub;
-  background-color: #c09300;
+  border-radius: 10px;
+  background-color: #292929;
+  height: 50px;
+  width: 50%;
   align-items: center;  
   justify-content: center;
+  z-index: 1;
+}
+::placeholder{
+  color: white;
 }
 
-.submit {
+.Main-login-panel-signup {
+  display: flex;
+  align-self: center;
+  justify-self: center;
+  grid-area: signup;
+  border-radius: 10px;
+  background-color: #292929;
+  top:50px;
+  height: 50px;
+  width: 50%;
+  align-items: center;  
+  justify-content: center;
+  z-index: 1;
+}
+
+.submit {  
+  border-radius: 10;
+  background-color: #292929;
   height: 100%;
   width: 100%;
 }
@@ -250,14 +294,13 @@ body {
 .Main-view-login-container {
   background-color: #282c34;
   display: grid;
-  grid-template-columns: 1fr 150px 25px 150px 1fr;
-  grid-template-rows: 1fr 100px 1fr;
+  grid-template-columns: 1fr 20% 20% 1fr;
+  grid-template-rows: 1fr 20% 20% 1fr;
   grid-template-areas: 
-        "t d d d t1"
-        "t addq space checkq t1"
-        "t f f f t1";
-
-    grid-gap: 4px;
+        "t d d t1"
+        "t addq checkq t1"
+        "t userList questionList t1"
+        "t f f t1";
     z-index: 0;
     height: 100vh;
     width: 100%;
@@ -272,8 +315,43 @@ body {
 
 .Main-view-login-add-question {
   display: flex;
+  color: white;
+  border-top-left-radius: 10px;
+  text-decoration: none;
   grid-area: addq;
-  background-color: #c00096;
+  width: 100%;
+  height: 100%;
+  background-color: #d42222;
+  align-items: center;  
+  justify-content: center;
+  
+  justify-self: center;
+}
+
+.Main-view-login-user-list {
+  display: flex;
+  grid-area: userList;
+  color: white;
+  border-bottom-left-radius: 10px;
+  text-decoration: none;
+  width: 100%;
+  height: 100%;
+  background-color: #2467e2;
+  align-items: center;  
+  justify-content: center;
+  
+  justify-self: center;
+}
+
+.Main-view-login-question-list {
+  display: flex;
+  grid-area: questionList;
+  border-bottom-right-radius: 10px;
+  color: white;
+  text-decoration: none;
+  width: 100%;
+  height: 100%;
+  background-color: #d42222;
   align-items: center;  
   justify-content: center;
   
@@ -283,7 +361,12 @@ body {
 .Main-view-login-check-question {
   display: flex;
   grid-area: checkq;
-  background-color: #c00096;
+  color: white;
+  border-top-right-radius: 10px;
+  text-decoration: none;
+  width: 100%;
+  height: 100%;
+  background-color: #2467e2;
   align-items: center;  
   justify-content: center;
   

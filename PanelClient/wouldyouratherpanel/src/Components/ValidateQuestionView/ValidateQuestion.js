@@ -3,7 +3,7 @@ import axios from 'axios'
 import '../../App.css';
 import { Link } from 'react-router-dom';
 import * as STATICS from '../../Const/Const';
-
+import Header from '../Header/Header'
 
 
 const firstQuestionComponent = (firstQuestion) => {
@@ -66,6 +66,9 @@ const mainView = (lodaing,finished,state,acceptHandler,rejectHandler,backToadmin
                 {secondQuestionComponent(state.currentQuestion.secondQuestion)}
                 {acceptComponent(acceptHandler)}
                 {declineComponent(rejectHandler)}
+                <Link to={{pathname:'/'}} className="Validate-back" onClick={backToadminPanel}>
+                    بازگشت
+                </Link>
             </div>
         )
     }else{
@@ -148,6 +151,7 @@ class ValidateQuestion extends Component {
 
         return (
             <div style={{width:'100%',height:'100%'}}>
+                <Header/>
                 {mainView(this.state.lodaing,this.state.finished,this.state,this.acceptHandler,this.rejectHandler,this.backToadminPanel)}
             </div>
         )

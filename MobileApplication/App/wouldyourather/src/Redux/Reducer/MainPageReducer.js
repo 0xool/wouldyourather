@@ -1,6 +1,7 @@
 // Initial State
+// isMainPageGameView : gameView for main game view - addQuestion for addquestion view - profileView for profile view
 const initialState = {
-    isMainPageGameView: true,
+    isMainPageGameView: 'gameView',
     removeAdRegistered: false,
   };
   
@@ -13,7 +14,7 @@ const mainPageReducer = (state = initialState, action) => {
         // State
         ...state,
         // Redux Store
-        isMainPageGameView: false,
+        isMainPageGameView: 'addQuestion',
       }
     }
 
@@ -23,7 +24,7 @@ const mainPageReducer = (state = initialState, action) => {
         // State
         ...state,
         // Redux Store
-        isMainPageGameView: true,
+        isMainPageGameView: 'gameView',
       }
     }
 
@@ -33,6 +34,24 @@ const mainPageReducer = (state = initialState, action) => {
       ...state,
       // Redux Store
       removeAdRegistered: true,
+    }
+  }
+   
+  case 'hide-profile-view': {
+    return {
+      // State
+      ...state,
+      // Redux Store
+      isMainPageGameView: 'gameView',
+    }
+  }
+
+  case 'show-profile-view': {
+    return {
+      // State
+      ...state,
+      // Redux Store
+      isMainPageGameView: 'profileView',
     }
   }
 
