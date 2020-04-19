@@ -13,10 +13,10 @@ class OptionMenu extends Component {
                 <Link to={{pathname:'/validateQuestion'}} className='Main-view-login-check-question'>
                     چک کردن سوال
                 </Link>
-                <Link to={{pathname:'/validateQuestion'}} className='Main-view-login-question-list'>
+                <Link to={{pathname:'/questionList'}} className='Main-view-login-question-list'>
                     لیست سوال ها
                 </Link>
-                <Link to={{pathname:'/validateQuestion'}} className='Main-view-login-user-list'>
+                <Link to={{pathname:'/userList'}} className='Main-view-login-user-list'>
                     لیست کاربران
                 </Link>
             </div>

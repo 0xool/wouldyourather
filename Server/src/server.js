@@ -340,6 +340,19 @@ app.get('/api/getAllUserBookmarks' , (req,res) => {
 })
 //=====================================================================
 // ======================= Update ==========================
+app.post('/api/updateQuestion', (req,res)=> {
+    Question.findByIdAndUpdate(req.body.id, {firstQuestion:req.body.firstQuestion,secondQuestion:req.body.secondQuestion}, {new:true}, (err,doc)=>{
+        if (err){
+            return res.status(400).send(err)
+        }
+
+        res.json({
+            success:true,
+            doc:doc
+        })
+    })
+})
+
 // QUESTION API :
 app.post('/api/validateQuestionById', (req,res)=> {
     Question.countDocuments({isVerified:true},(err,count) => {
@@ -490,7 +503,7 @@ app.post('/api/addBookmark', (req,res)=> {
 // ======================= Delete ==========================
 // QUESTION API :
 app.delete("/api/deleteQuestionById",(req,res) => {
-    Question.findByIdAndDelete(req.body._id,(err,doc) => {
+    Question.findByIdAndDelete(req.body.id,(err,doc) => {
         if (err) res.status(400).send(err)
         res.send(doc)
     })
@@ -504,7 +517,7 @@ app.delete("/api/deleteAllQuestion",(req,res) => {
 //=====================================================================
 // USER API :
 app.delete("/api/deleteUserById",(req,res) => {
-    User.findByIdAndDelete(req.body._id,(err,doc) => {
+    User.findByIdAndDelete(req.body.id,(err,doc) => {
         if (err) res.status(400).send(err)
         res.send(doc)
     })
