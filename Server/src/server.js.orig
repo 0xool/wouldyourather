@@ -118,6 +118,10 @@ app.post('/api/createUser', (req,res) => {
         })
     })
 })
+<<<<<<< HEAD
+=======
+
+>>>>>>> dev
 //=====================================================================
 app.post('/api/adminLogin', (req,res) => {
     User.find( {$and : [{username:req.body.username},{password:req.body.password},{isAdmin:true}]}, (err,doc) => {
@@ -135,6 +139,9 @@ app.post('/api/adminLogin', (req,res) => {
         })
     })
 })
+//=====================================================================
+<<<<<<< HEAD
+=======
 app.post('/api/userLogin', (req,res) => {
     User.find( {$and : [{email:req.body.email},{password:req.body.password}]}, (err,doc) => {
         
@@ -152,6 +159,8 @@ app.post('/api/userLogin', (req,res) => {
     })
 })
 
+//=====================================================================
+>>>>>>> dev
 app.post('/api/vote', (req,res) => {
     
     if (req.body._id == null){
@@ -225,6 +234,8 @@ app.get('/api/getQuestionById' , (req,res) => {
     })
 })
 //=====================================================================
+<<<<<<< HEAD
+=======
 app.get('api/getUserQuestionsByID' , (req,res) => {
     let id = req.query.id
     User.findById(id,(err,doc) => {
@@ -244,6 +255,7 @@ app.get('api/getUserBookmarksByID' , (req,res) => {
     })  
 })
 //=====================================================================
+>>>>>>> dev
 app.get('/api/getAllQuestion' , (req,res) => {
     Question.find().exec((err,doc) => 
     {
@@ -261,8 +273,15 @@ app.get('/api/getAllVerifiedQuestion' , (req,res) => {
     })
 })
 //=====================================================================
+<<<<<<< HEAD
 app.get('/api/getBatchQuestionUpdate' , (req,res) => {
     var arr = JSON.parse(req.query.questionBatch);
+=======
+app.post('/api/getBatchQuestionUpdate' , (req,res) => {
+    console.log('the fuck')
+    console.log(req.body.questionBatch)
+    var arr = req.body.questionBatch;
+>>>>>>> dev
     var arrayToUpdate = []
     for (q of arr){
         arrayToUpdate.push(q.questionId)
@@ -308,6 +327,8 @@ app.get('/api/getAllUsers' , (req,res) => {
     })
 })
 //=====================================================================
+<<<<<<< HEAD
+=======
 app.get('/api/getAllUserQuestions' , (req,res) => {
     User.findById(req.query._id).exec((err,doc) => 
     {
@@ -334,6 +355,7 @@ app.get('/api/getAllUserBookmarks' , (req,res) => {
     })
 })
 //=====================================================================
+>>>>>>> dev
 // ======================= Update ==========================
 app.post('/api/updateQuestion', (req,res)=> {
     Question.findByIdAndUpdate(req.body.id, {firstQuestion:req.body.firstQuestion,secondQuestion:req.body.secondQuestion}, {new:true}, (err,doc)=>{
@@ -407,6 +429,8 @@ app.post('/api/makeUserAdmingByID', (req,res)=> {
     })
 })
 //=====================================================================
+<<<<<<< HEAD
+=======
 app.post("/api/deleteUserQuestionById",(req,res) => {
     User.findByIdAndUpdate(req.body._id,{$pullAll: {questionId:req.body.questionId}},(err,doc) => {
         if (err) res.status(400).send(err)
@@ -421,6 +445,7 @@ app.post("/api/deleteUserBookmarkById",(req,res) => {
     })
 })
 //=====================================================================
+>>>>>>> dev
 app.post('/api/addToUserQuestionById', (req,res)=> {
     if (req.body.q_id == null){
         res.status(400).send({
@@ -455,6 +480,12 @@ app.post('/api/addToUserQuestionById', (req,res)=> {
         })
 
     })
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> dev
 })
 //=====================================================================
 app.post('/api/addBookmark', (req,res)=> {

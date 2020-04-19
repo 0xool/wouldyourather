@@ -47,7 +47,7 @@ body {
 .Validate-container {
   display: grid;
   grid-template-columns: 2fr 3fr 1fr 3fr 2fr;
-  grid-template-rows: 1fr 2fr 1fr;
+  grid-template-rows: 1.5fr 2.5fr 1fr;
   grid-template-areas: 
         "t logo logo logo tt"
         "space1 firstq orspace secondq space"
@@ -57,7 +57,7 @@ body {
     z-index: 0;
     height: 100vh;
     width: 100%;
-  background-color: #61dafb;
+  background-color: #292929;
 }
 
 .Validate-first-question{
@@ -83,7 +83,7 @@ body {
 }
 
 .Validate-or {
-  background-color: #282c34;
+  background-color: #284888;
   color: white;
   display: flex;
   border-radius: 50%;
@@ -127,6 +127,7 @@ body {
 .Validate-decline {
   display: flex;
   color: white;
+  text-decoration: none;
   grid-area: decline;
   background-color: #c00000;
   border-radius: 50%;
@@ -149,7 +150,9 @@ body {
 }
 
 .Validate-back {
-  background-color: #282c34;
+  border-radius: 10px;
+  text-decoration: none;
+  background-color: #1c3b79;
   display: flex;
   color: white;
   grid-area: t2;
@@ -177,72 +180,113 @@ body {
 }
 
 .Main-login-panel {
+  position: relative;
   grid-area: login;
-  background-color: #61dafb;
+  background-color: #2467e2;
   display: grid;
-  grid-template-columns: 1fr 60% 10px 20% 1fr;
-  grid-template-rows: 1fr 25% 25% 3fr;
+  grid-template-columns: 1fr 40% 10px 40% 1fr;
+  grid-template-rows: 1fr 8% 25% 3fr;
   grid-template-areas: 
         "f free free free fe"
-        "f usernameinput v username fe"
-        "f passwordinput b password fe"
-        "f sub sub sub fe";
+        "f password v username fe"
+        "f passwordinput b usernameinput fe"
+        "f signup d sub fe";
   height: 100%;
   width: 100%;
   grid-gap: 4px;
 }
 
+.Main-login-logo-text {
+  color :white;
+  font-size: 30px;
+  grid-area: free;
+  text-align: center;
+  z-index: 1;
+  margin-top: 35px;
+}
+
 .Main-login-panel-username {
   display: flex;
+  flex-direction: column;
   grid-area: username;
-  background-color: #c00000;
+  color: white;  
   align-items: center;  
-  justify-content: center;
+  justify-content: flex-end;
+  z-index: 1;
 }
 
 .Main-login-panel-password {
   display: flex;
+  flex-direction: column;
   grid-area: password;
-  background-color: #0073c0;
+  color: white;  
   align-items: center;  
-  justify-content: center;
+  justify-content: flex-end;
+  z-index: 1;
 }
 
 .Main-login-panel-username-input {
   display: flex;
   grid-area: usernameinput;
-  background-color: #26c000;
   align-items: center;  
   justify-content: center;
+  z-index: 1;
 }
 
 .Main-login-panel-password-input {
   display: flex;
   grid-area: passwordinput;
-  background-color: #c00096;
   align-items: center;  
   justify-content: center;
+  z-index: 1;
 }
 
 .Main-login-logo {
+  position: relative;
   color: white;
-  grid-area: log;
   font-size: 50px;
   align-items: center;  
   justify-content: center;
   align-self: center;
   justify-self: center;
+  text-align: center;
 }
 
 .Main-login-panel-submit {
   display: flex;
+  align-self: center;
+  justify-self: center;
   grid-area: sub;
-  background-color: #c09300;
+  border-radius: 10px;
+  background-color: #292929;
+  height: 50px;
+  width: 50%;
   align-items: center;  
   justify-content: center;
+  z-index: 1;
+}
+::placeholder{
+  color: white;
 }
 
-.submit {
+.Main-login-panel-signup {
+  display: flex;
+  align-self: center;
+  justify-self: center;
+  grid-area: signup;
+  border-radius: 10px;
+  background-color: #292929;
+  top:50px;
+  height: 50px;
+  width: 50%;
+  align-items: center;  
+  justify-content: center;
+  z-index: 1;
+}
+
+.submit {  
+  border-radius: 10;
+  background-color: #292929;
   height: 100%;
   width: 100%;
 }
@@ -250,14 +294,13 @@ body {
 .Main-view-login-container {
   background-color: #282c34;
   display: grid;
-  grid-template-columns: 1fr 150px 25px 150px 1fr;
-  grid-template-rows: 1fr 100px 1fr;
+  grid-template-columns: 1fr 20% 20% 1fr;
+  grid-template-rows: 1fr 20% 20% 1fr;
   grid-template-areas: 
-        "t d d d t1"
-        "t addq space checkq t1"
-        "t f f f t1";
-
-    grid-gap: 4px;
+        "t d d t1"
+        "t addq checkq t1"
+        "t userList questionList t1"
+        "t f f t1";
     z-index: 0;
     height: 100vh;
     width: 100%;
@@ -272,8 +315,43 @@ body {
 
 .Main-view-login-add-question {
   display: flex;
+  color: white;
+  border-top-left-radius: 10px;
+  text-decoration: none;
   grid-area: addq;
-  background-color: #c00096;
+  width: 100%;
+  height: 100%;
+  background-color: #d42222;
+  align-items: center;  
+  justify-content: center;
+  
+  justify-self: center;
+}
+
+.Main-view-login-user-list {
+  display: flex;
+  grid-area: userList;
+  color: white;
+  border-bottom-left-radius: 10px;
+  text-decoration: none;
+  width: 100%;
+  height: 100%;
+  background-color: #2467e2;
+  align-items: center;  
+  justify-content: center;
+  
+  justify-self: center;
+}
+
+.Main-view-login-question-list {
+  display: flex;
+  grid-area: questionList;
+  border-bottom-right-radius: 10px;
+  color: white;
+  text-decoration: none;
+  width: 100%;
+  height: 100%;
+  background-color: #d42222;
   align-items: center;  
   justify-content: center;
   
@@ -283,9 +361,272 @@ body {
 .Main-view-login-check-question {
   display: flex;
   grid-area: checkq;
-  background-color: #c00096;
+  color: white;
+  border-top-right-radius: 10px;
+  text-decoration: none;
+  width: 100%;
+  height: 100%;
+  background-color: #2467e2;
   align-items: center;  
   justify-content: center;
   
   justify-self: center;
+}
+
+.Question-list-container {
+  background-color: #292929;
+  display: grid;
+  grid-template-columns: 1fr 80% 1fr;
+  grid-template-rows: 2fr 80% 1fr;
+  grid-template-areas: 
+        "free d free2"
+        "free questionList free2"
+        "free f free2";
+    z-index: 1;
+    height: 100vh;
+    width: 100%;
+}
+
+.Question-list {
+  background-color: #282c34;
+  display: flex;
+  grid-area: questionList;
+  box-shadow: 2px 2px 5px black;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  padding-top: 8px;
+  
+}
+
+.Question-box-container {
+  justify-self: center;
+  align-self: center;
+  margin: 4px;
+  display: grid;
+  grid-template-columns: 1fr 70px 70px 2fr 20% 20% 1fr;
+  grid-template-rows: 2fr 1fr 70% 1fr 2fr;
+  grid-template-areas: 
+        "free free free free free free free"
+        "free free free free free free free"
+        "f1 delete edit space second first number"
+        "free2 free2 free2 free2 free2 free2 free2"
+        "free2 free2 free2 free2 free2 free2 free2";
+    gap: 8px;
+    
+    
+}
+
+.Question-box-first-section {
+    grid-area: first;
+    display: flex;
+    font-size: 15px;
+    background-color: #d42222;
+    color: white;
+    border-radius: 15px;
+    justify-content: center;
+    align-content: center;
+    align-self: center;
+    text-align: center;
+    justify-self: center;
+    margin: 8px;
+    width: 100%;
+    height: 100%;
+}
+
+.Question-box-second-section {
+  grid-area: second;
+  font-size: 15px;
+  overflow:scroll;
+  display: flex;
+  background-color: #2467e2;
+  align-items: stretch;
+  color: white;
+  border-radius: 15px;
+  justify-content: center;
+  align-content: center;
+  align-self: center;
+  text-align: center;
+  justify-self: center;
+  margin: 8px;
+  width: 100%;
+  height: 100%;
+}
+
+.Question-box-edit-section {
+  grid-area: edit;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  justify-content: center;
+  align-content: center;
+  flex-direction: column;
+  align-self: center;
+  text-align: center;
+  justify-self: center;
+
+  width: 50px;
+  height: 50px;
+  color: white;
+  justify-content: center;
+  align-self: center;
+}
+
+.Question-box-delete-section {
+  grid-area: delete;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  flex-direction: column;
+  align-self: center;
+  text-align: center;
+  justify-self: center;
+  width: 50px;
+  height: 50px;
+  justify-content: center;
+  align-self: center;
+}
+
+.Question-box-number-section {
+  grid-area: number;
+  color: white;
+  font-size: 15px;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  flex-direction: column;
+  align-self: center;
+  text-align: center;
+  justify-self: center;
+  width: 20px;
+  height: 20px;
+  justify-content: center;
+  align-self: center;
+}
+
+.User-list-container {
+  background-color: #292929;
+  display: grid;
+  grid-template-columns: 1fr 60% 1fr;
+  grid-template-rows: 2fr 80% 1fr;
+  grid-template-areas: 
+        "free d free2"
+        "free questionList free2"
+        "free f free2";
+    z-index: 1;
+    height: 100vh;
+    width: 100%;
+}
+
+.User-list {
+  background-color: #282c34;
+  display: flex;
+  grid-area: questionList;
+  box-shadow: 2px 2px 5px black;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  padding-top: 8px;
+  
+}
+
+.User-box-container {
+  justify-self: center;
+  align-self: center;
+  margin: 4px;
+  display: grid;
+  grid-template-columns: 70px 1fr 40% 20% 10%;
+  grid-template-rows: 1fr 45% 1fr;
+  grid-template-areas: 
+        "free free emailLogo nameLogo numberLogo"
+        "delete f2 email name number"
+        "free2 free2 free2 free2 free2";
+  gap: 8px;
+    
+}
+
+.User-box-delete-section {
+  grid-area: delete;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  flex-direction: column;
+  align-self: center;
+  text-align: center;
+  justify-self: center;
+  width: 50px;
+  height: 50px;
+  justify-content: center;
+  align-self: center;
+}
+
+.User-box-name-section {
+  grid-area: name;
+  font-size: 15px;
+  display: flex;
+  align-items: stretch;
+  color: white;
+  border-radius: 15px;
+  justify-content: center;
+  align-content: center;
+  align-self: center;
+  text-align: center;
+  justify-self: center;
+  margin: 8px;
+  width: 100%;
+  height: 100%;
+}
+
+.User-box-email-section {
+  grid-area: email;
+  font-size: 15px;  
+  display: flex;
+  align-items: stretch;
+  color: white;
+  border-radius: 15px;
+  justify-content: center;
+  align-content: center;
+  align-self: center;
+  text-align: center;
+  justify-self: center;
+  margin: 8px;
+  width: 100%;
+  height: 100%;
+}
+
+.User-box-number-section {
+  grid-area: number;
+  color: black;
+  font-size: 15px;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  flex-direction: column;
+  align-self: center;
+  text-align: center;
+  justify-self: center;
+  width: 20px;
+  height: 20px;
+  justify-content: center;
+  align-self: center;
+}
+
+.Back-from-list{
+  display: flex;
+  position: absolute;
+  bottom: 50px;
+  left: 80px;
+  color: black;
+  text-decoration: none;
+  grid-area: decline;
+  background-color: white;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  justify-self: center;
+  align-self: center;
+  align-items: center;  
+  justify-content: center;
 }

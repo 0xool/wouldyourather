@@ -2,48 +2,41 @@ import React, { Component } from 'react'
 import UserManager from '../../Manager/userManager.js'
 import Axios from 'axios'
 import userManager from '../../Manager/userManager.js'
-import { Link } from 'react-router-dom'
 import * as STATICS from '../../Const/Const';
+import OptionMenu from './OptionMenu'
+import Header from '../Header/Header'
 
-
-
-const loginView = (state,handleUserChange,handlePassChange,submitClicked) => {
-    console.log(UserManager.isLogin)
+const loginView = (handleUserChange,handlePassChange,submitClicked,signup) => {
     if (!userManager.isLogin){
     return(
         <div className='Main-login-container'>
-            <div className='Main-login-logo'>یا آ یا آ یا</div>
+            
             <div className='Main-login-panel'>
-                <div className='Main-login-panel-username'>نام کاربری</div>
-                <div className='Main-login-panel-password'>رمز عبور</div>
-                <div className='Main-login-panel-username-input'>
-                    <input type="text"  onChange={handleUserChange} />
+            
+                <div className='Main-login-logo-text'>ورود به پنل کدومش</div>
+                <div style={{position:'absolute',right:0,height:'100%',width:'50%',backgroundColor:'#d42222',zIndex:0}}></div>
+                {/* <div className='Main-login-panel-username'>نام کاربری</div> */}
+                {/* <div className='Main-login-panel-password'>رمز عبور</div> */}
+                <div className='Main-login-panel-username-input' >
+                    <input type="text" style={{height:35, textAlign:'center',backgroundColor:'#292929',place:'white',borderColor:'#292929',color:'white'}}  onChange={handleUserChange} placeholder='نام کاربری' />
                 </div>
-                <div className='Main-login-panel-password-input'>
-                    <input type="text"  onChange={handlePassChange} />
+                <div className='Main-login-panel-password-input' >
+                    <input type="text" style={{height:35, textAlign:'center',backgroundColor:'#292929',place:'white',borderColor:'#292929',color:'white'}}  onChange={handlePassChange} placeholder='رمز عبور' type='password'/>
                 </div>
-                <div className='Main-login-panel-submit' onClick={submitClicked}>
+                <div style={{color:'white'}} className='Main-login-panel-submit' onClick={submitClicked}>
                       ورود
+                </div>
+                <div style={{color:'white'}} className='Main-login-panel-signup' onClick={signup}>
+                      ثبت نام
                 </div>
             </div>
         </div>
     )
     }else {
         return(
-            <div className='Main-view-login-container'>
-                <Link to={{pathname:'/addQuestion'}} className='Main-view-login-add-question'>
-                    اضافه کردن سوال
-                </Link>
-                <Link to={{pathname:'/validateQuestion'}} className='Main-view-login-check-question'>
-                    چک کردن سوال
-                </Link>
-            </div>
+            <OptionMenu/>
         )
     }
-}
-
-const mainView = () => {
-
 }
 
 class Main extends Component {
@@ -51,7 +44,6 @@ class Main extends Component {
     state = {
         username:'',
         password:'',
-
     }
 
     constructor(props) {
@@ -60,6 +52,7 @@ class Main extends Component {
         this.handlePassChange = this.handlePassChange.bind(this)
         this.handleUserChange = this.handleUserChange.bind(this)
         this.submitLogin = this.submitLogin.bind(this)
+        this.signup = this.signup.bind(this)
     }
 
     handlePassChange (event) {
@@ -70,12 +63,17 @@ class Main extends Component {
         this.setState({username: event.target.value});
     }
 
+    signup() {
+
+    }
+
     submitLogin () {
-        if (this.state.username == null){
+        console.log(this.state.username)
+        if (this.state.username == null || this.state.username == ''){
             alert('Enter Username')
             return        
         }
-        if (this.state.password == null){
+        if (this.state.password == null || this.state.password == ''){
             alert('Enter Password')
             return
         }
@@ -83,22 +81,21 @@ class Main extends Component {
             if (res.status == 200){
                 userManager.isLogin = true
                 this.forceUpdate()
+                
             }
         }).catch(err => {
-            if (err.response.status == 400){
-                
+            if (err.response.status == 400){            
                 alert('Wrong Username or Password')
             }
         })
     }
 
     render () {
-
-
-
         return (
+            
             <div style={{width:'100%',height:'100%'}}>
-                {loginView(this.state,this.handleUserChange,this.handlePassChange,this.submitLogin)}
+                <Header/>
+                {loginView(this.handleUserChange,this.handlePassChange,this.submitLogin,this.signup)}
             </div>
         )
     }
