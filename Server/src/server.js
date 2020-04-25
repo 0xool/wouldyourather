@@ -108,8 +108,23 @@ app.post('/api/createUser', (req,res) => {
     
     const user = new User(req.body)
     user.save((err,doc) => {
-        if (err){
-            return res.status(400).send(err)
+        console.log(err)
+        if (err ){
+            if(err.name == 'MongoError'){
+              if(err.keyPattern.email == 1){
+                return res.status(400).json({
+                    message:'ایمیل وارد شده تکراری می باشد',
+                    err:err
+               })
+            }
+        }
+
+        if (err.name == 'ValidationError'){
+                return res.status(400).json({
+                    message:'رمز عبور وارد شده کمتر از ۸ حرف می باشد',
+                    err:err
+                })
+            }
         }
 
         res.status(200).json({
@@ -147,7 +162,7 @@ app.post('/api/userLogin', (req,res) => {
              return
         }
         res.status(400).json({
-            message: 'Username or Password Incorrect ',
+            message: 'نام کاربر یا رمز عبور اشتباه می باشد',
         })
     })
 })
@@ -261,8 +276,9 @@ app.get('/api/getAllVerifiedQuestion' , (req,res) => {
     })
 })
 //=====================================================================
-app.get('/api/getBatchQuestionUpdate' , (req,res) => {
-    var arr = JSON.parse(req.query.questionBatch);
+app.post('/api/getBatchQuestionUpdate' , (req,res) => {
+    console.log(req.body.questionBatch)
+    var arr = req.body.questionBatch;
     var arrayToUpdate = []
     for (q of arr){
         arrayToUpdate.push(q.questionId)
