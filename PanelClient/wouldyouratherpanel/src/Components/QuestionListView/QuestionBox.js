@@ -59,9 +59,10 @@ class QuestionBox extends Component {
         var first = (this.state.firstQuestion == '') ? this.state.initialFirstQusetion : this.state.firstQuestion
         var second = (this.state.secondQuestion == '') ? this.state.initialSecondQusetion : this.state.secondQuestion
             
-        axios.post(`${STATICS.SERVER_API_ADDRESS}updateQuestion`,{id:this.state.id,firstQuestion:first,secondQuestion:second}).then(
+        axios.post(`${STATICS.SERVER_API_ADDRESS}updateQuestion`,{id:this.state.id,firstQuestion:first,secondQuestion:second}).then( () => {
             alert('.سوال با موفقیت تغییر یافت')
-        ).catch(err => {
+            this.forceUpdate()
+        }).catch(err => {
             // alert(‍'خطا در برقراری ارتباط با سرور')
         })
     }
@@ -69,6 +70,7 @@ class QuestionBox extends Component {
     delete() {
         axios.delete(`${STATICS.SERVER_API_ADDRESS}deleteQuestionById`,{data:{id:this.state.id}}).then((res) =>{
             alert('.سوال با موفقیت حذف شد')
+            this.forceUpdate()
         }
         ).catch(err => {
             // alert(‍'خطا در برقراری ارتباط با سرور')

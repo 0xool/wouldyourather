@@ -31,6 +31,7 @@ class QuestionBox extends Component {
     delete() {
         axios.delete(`${STATICS.SERVER_API_ADDRESS}deleteUserById`,{data:{id:this.state.id}}).then((res) =>{
             alert('.کاربر با موفقیت حذف شد')
+            this.forceUpdate()
         }
         ).catch(err => {
             // alert(‍'خطا در برقراری ارتباط با سرور')

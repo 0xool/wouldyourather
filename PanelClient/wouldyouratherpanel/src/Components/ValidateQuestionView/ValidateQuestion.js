@@ -134,7 +134,7 @@ class ValidateQuestion extends Component {
 
     rejectHandler () {
         var index = this.state.questionIndex + 1
-        axios.delete(`${STATICS.SERVER_API_ADDRESS}deleteQuestionById`,{data:{_id:this.state.currentQuestion._id}}).then(res => console.log(res))
+        axios.delete(`${STATICS.SERVER_API_ADDRESS}deleteQuestionById`,{data:{id:this.state.currentQuestion._id}}).then(res => console.log(res))
         if (index < this.state.unveridiedQuestions.length){
             this.setState({questionIndex:index})            
             var currentQuestion = this.state.unveridiedQuestions[index]
