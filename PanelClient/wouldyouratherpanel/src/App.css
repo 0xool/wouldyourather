@@ -630,3 +630,89 @@ body {
   align-items: center;  
   justify-content: center;
 }
+
+.Single-question-view-container {
+  display: grid;
+  grid-template-columns: 2fr 3fr 1fr 3fr 2fr;
+  grid-template-rows: 1.5fr 2.5fr 1fr;
+  grid-template-areas: 
+        "t logo logo logo tt"
+        "space1 firstq orspace secondq space"
+        "t1 webView s download t3";
+
+    grid-gap: 4px;
+    z-index: 0;
+    height: 100vh;
+    width: 100%;
+  background-color: #292929;
+}
+
+.Single-question-view-first-question-view {
+  position: relative;
+  display: flex;
+  background-color: red;
+  color: white;
+  vertical-align: middle;
+  grid-area: firstq;
+  text-align: center;
+  align-items: center;  
+  justify-content: center;
+}
+
+.Single-question-view-second-question-view {
+  position: relative;
+  display: flex;
+  background-color: blue;
+  color: white;
+  vertical-align: middle;
+  grid-area: secondq;
+  text-align: center;
+  align-items: center;  
+  justify-content: center;
+}
+
+.Single-question-view-end{
+  background-color: #284888;
+  font-size: 13px;
+  color: white;
+  display: flex;
+  border-radius: 10%;
+  width: 120px;
+  height: 75px;
+  text-align: center;
+  justify-self: center;
+  align-self: center;
+  grid-area: orspace;
+  align-items: center;  
+  justify-content: center;
+}
+
+.Single-question-view-download{
+  background-color: #284888;
+  color: white;
+  display: flex;
+  border-radius: 10%;
+  width: 150px;
+  height: 100px;
+  text-align: center;
+  justify-self: center;
+  align-self: center;
+  grid-area: download;
+  align-items: center;  
+  justify-content: center;
+}
+
+.Single-question-view-web-view{
+  background-color: #284888;
+  color: white;
+  display: flex;
+  border-radius: 10%;
+  width: 150px;
+  height: 100px;
+  text-align: center;
+  justify-self: center;
+  align-self: center;
+  grid-area: webView;
+  align-items: center;  
+  justify-content: center;
+}
