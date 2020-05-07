@@ -17,6 +17,19 @@ const downloadView = (voted) => {
     )
 }
 
+const textView = (finished) => {
+    if (!finished) {
+        return(
+            <div></div>
+        )
+    }
+    return (
+        <div className='Single-question-view-text'>
+            <Link to={{pathname:'/game'}} style={{color:'white'}}>سوال های بیشتر</Link>
+        </div>
+    )
+}
+
 const voteNumberView = (voted,voteNumber,first) => {
         
     var style={}
@@ -146,14 +159,21 @@ class SingleQuestionView extends Component {
             )
         }
 
+        const total = this.state.firstQuestionVoteNumber + this.state.secondQuestionVoteNumber
+        var currentFirst = this.state.firstQuestionVoteNumber
+        var currentSecond = this.state.secondQuestionVoteNumber
+        var c1 = Math.ceil( currentFirst / total * 100)
+        var c2 = Math.floor( currentSecond / total * 100)
+
         return (
             <div style={{height:'100%',width:'100%'}}>
                   <Header/>
                   <div className='Single-question-view-container'>
-                        {firstQuestionComponent(this.state.firstQuestion,this.firstQuestionVoted,this.state.voted,this.state.firstQuestionVoteNumber)}
+                        {firstQuestionComponent(this.state.firstQuestion,this.firstQuestionVoted,this.state.voted,c1)}
                         {finishedView()}
                         {downloadView(this.state.voted)}
-                        {secondQuestionComponent(this.state.secondQuestion,this.secondQuestionVoted,this.state.voted,this.state.secondQuestionVoteNumber)}
+                        {textView(this.state.voted)}
+                        {secondQuestionComponent(this.state.secondQuestion,this.secondQuestionVoted,this.state.voted,c2)}
                   </div>
             </div>
         )

@@ -6,6 +6,7 @@ import AQ from './Components/AddQuestionView/AddQuestion'
 import QL from './Components/QuestionListView/QuestionListView'
 import UL from './Components/UserListView/UserListView'
 import SQV from './Components/SingleQuestionView/SingleQuestionView'
+import G from './Components/Game/Game'
 
 
 const Routes = () => {
@@ -16,6 +17,7 @@ const Routes = () => {
                 <Route path="/validateQuestion" exact component={VQ}/>
                 <Route path="/addQuestion" component={AQ}/>
                 <Route path="/gameVote/:id" component={SQV}/>
+                <Route path="/game" component={G}/>
                 <Route path="/" component={Main}/>
                  
             </Switch>

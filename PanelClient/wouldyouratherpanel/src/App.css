@@ -647,6 +647,62 @@ body {
   background-color: #292929;
 }
 
+@media screen and (max-width: 600px){
+    
+  .Single-question-view-container {
+    display: grid;
+    grid-template-columns: 16px 3fr 4px 3fr 16px;
+    grid-template-rows: 1fr 2.5fr 1fr;
+    grid-template-areas: 
+          "t orspace orspace orspace tt"
+          "space1 firstq or secondq space"
+          "t1 webView s download t3";
+
+      grid-gap: 4px;
+      z-index: 0;
+      height: 100vh;
+      width: 100%;
+    background-color: #292929;
+  }
+}
+
+@keyframes on-box-animation {
+        
+  0% {
+    transform: translateY(1);
+  }
+  25% {
+    transform: scale(0.9)
+  }
+
+  50%{
+    transform: scale(1)
+  }
+
+}
+
+.box-hover-animation {
+  animation: on-box-animation;
+  animation-delay: 0;
+  animation-duration: 1s;
+  animation-fill-mode: forwards;
+  animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+
+@keyframes view-move-in-fade-in-from-top {
+    
+  from {
+      opacity: 0.2;
+      
+  }
+  to {
+      
+  }
+
+
+}
+
 .Single-question-view-first-question-view {
   position: relative;
   display: flex;
@@ -672,13 +728,14 @@ body {
 }
 
 .Single-question-view-end{
+  margin-top: 50px;
   background-color: #284888;
   font-size: 13px;
   color: white;
   display: flex;
   border-radius: 10%;
   width: 120px;
-  height: 75px;
+  height: 25px;
   text-align: center;
   justify-self: center;
   align-self: center;
@@ -698,6 +755,21 @@ body {
   justify-self: center;
   align-self: center;
   grid-area: download;
+  align-items: center;  
+  justify-content: center;
+}
+
+.Single-question-view-text{
+  background-color: #284888;
+  color: white;
+  display: flex;
+  border-radius: 10%;
+  width: 150px;
+  height: 100px;
+  text-align: center;
+  justify-self: center;
+  align-self: center;
+  grid-area: webView;
   align-items: center;  
   justify-content: center;
 }
