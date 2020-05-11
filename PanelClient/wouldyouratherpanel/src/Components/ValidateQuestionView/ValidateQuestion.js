@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import '../../App.css';
-import { Link } from 'react-router-dom';
+import { Link,Redirect } from 'react-router-dom';
+import * as SessionManager from '../../Utilities/Utilities'
+import userManager from '../../Manager/userManager';
 import * as STATICS from '../../Const/Const';
 import Header from '../Header/Header'
 
@@ -94,12 +96,43 @@ class ValidateQuestion extends Component {
         questionIndex:0,
         finished:false,
         lodaing:true,
+        redirect:false,
     }
     
     constructor(props){
         super(props)
 
+        this.acceptHandler = this.acceptHandler.bind(this)
+        this.rejectHandler = this.rejectHandler.bind(this)
+        this.backToadminPanel = this.backToadminPanel.bind(this)
     }
+
+    componentWillMount() {
+        this.Auth()
+    }
+
+    Auth (){
+        
+        const session = SessionManager.getSession()
+        axios.get(`${STATICS.SERVER_API_ADDRESS}isUserAuth`,{params:{isLoggedIn:session}}).then( (res) => {
+            
+            console.log(res.data.auth)
+            if (!res.data.auth) {
+                userManager.isLogin = false
+                this.setState({
+                    redirect:true
+                })
+                return
+            }
+        
+        }).catch(err => {
+                userManager.isLogin = false
+                this.setState({
+                    redirect:true
+                })
+            console.log(`network error: ${err}`)
+        })     
+    } 
 
     componentDidMount() {
         const request = axios.get(`${STATICS.SERVER_API_ADDRESS}getUnverifiedQuestions`)
@@ -145,9 +178,11 @@ class ValidateQuestion extends Component {
     }
 
     render () {
-        this.acceptHandler = this.acceptHandler.bind(this)
-        this.rejectHandler = this.rejectHandler.bind(this)
-        this.backToadminPanel = this.backToadminPanel.bind(this)
+
+
+        if (this.state.redirect) {
+            return <Redirect to={this.state.redirect} />
+          }
 
         return (
             <div style={{width:'100%',height:'100%'}}>

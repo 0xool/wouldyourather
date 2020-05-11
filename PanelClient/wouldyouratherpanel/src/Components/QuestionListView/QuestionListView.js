@@ -3,7 +3,9 @@ import Header from '../Header/Header'
 import axios from 'axios'
 import * as STATICS from '../../Const/Const';
 import QB from './QuestionBox'
-import { Link } from 'react-router-dom';
+import { Link,Redirect } from 'react-router-dom';
+import * as SessionManager from '../../Utilities/Utilities'
+import userManager from '../../Manager/userManager';
 
 const questionsList =  (questions) => {
     
@@ -35,6 +37,7 @@ class QuestionListView extends Component {
     
     state = {
         questions:[],
+        redirect:false
      }
 
     constructor (){
@@ -42,7 +45,33 @@ class QuestionListView extends Component {
         this.getQuestions()
 
     }
-    
+
+    componentWillMount() {
+        this.Auth()
+    }
+
+    Auth (){
+        
+        const session = SessionManager.getSession()
+        axios.get(`${STATICS.SERVER_API_ADDRESS}isUserAuth`,{params:{isLoggedIn:session}}).then( (res) => {
+            
+            console.log(res.data.auth)
+            if (!res.data.auth) {
+                userManager.isLogin = false
+                this.setState({
+                    redirect:true
+                })
+                return
+            }
+        
+        }).catch(err => {
+                userManager.isLogin = false
+                this.setState({
+                    redirect:true
+                })
+            console.log(`network error: ${err}`)
+        })     
+    } 
     
     getQuestions () {
         axios.get(`${STATICS.SERVER_API_ADDRESS}getAllQuestion`).then( (res) => {
@@ -58,6 +87,10 @@ class QuestionListView extends Component {
     
 
     render () {
+
+        if (this.state.redirect) {
+            return <Redirect to={this.state.redirect} />
+          }
 
         var list = (this.state.questions.length == 0) ? null : this.state.questions
 

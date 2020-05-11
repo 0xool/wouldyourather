@@ -3,7 +3,10 @@ import Header from '../Header/Header'
 import axios from 'axios'
 import * as STATICS from '../../Const/Const';
 import UB from './UserBox'
-import { Link } from 'react-router-dom';
+import { Link,Redirect } from 'react-router-dom';
+import * as SessionManager from '../../Utilities/Utilities'
+import userManager from '../../Manager/userManager';
+
 
 const usersList =  (users) => {
     
@@ -32,18 +35,47 @@ const backComponent = () => {
     )
 }
 
+
+
 class UserListView extends Component {
     
     state = {
         users:[],
+        redirect:false
      }
 
     constructor (){
         super()
         this.getUsers()
-
     }
-    
+
+    componentWillMount() {
+        this.Auth()
+    }
+
+    Auth (){
+        
+        const session = SessionManager.getSession()
+        axios.get(`${STATICS.SERVER_API_ADDRESS}isUserAuth`,{params:{isLoggedIn:session}}).then( (res) => {
+            
+            console.log(res.data.auth)
+            if (!res.data.auth) {
+                userManager.isLogin = false
+                this.setState({
+                    redirect:true
+                })
+                return
+            }
+        
+        }).catch(err => {
+                userManager.isLogin = false
+                this.setState({
+                    redirect:true
+                })
+            console.log(`network error: ${err}`)
+        })     
+    }   
+ 
     
     getUsers () {
         axios.get(`${STATICS.SERVER_API_ADDRESS}getAllUsers`).then( (res) => {
@@ -57,6 +89,10 @@ class UserListView extends Component {
     }
 
     render () {
+
+        if (this.state.redirect) {
+            return <Redirect to={this.state.redirect} />
+          }
 
         var list = (this.state.users.length == 0) ? null : this.state.users
 

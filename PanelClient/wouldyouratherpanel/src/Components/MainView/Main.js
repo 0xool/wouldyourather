@@ -5,6 +5,7 @@ import userManager from '../../Manager/userManager.js'
 import * as STATICS from '../../Const/Const';
 import OptionMenu from './OptionMenu'
 import Header from '../Header/Header'
+import * as SessionManager from '../../Utilities/Utilities'
 
 const loginView = (handleUserChange,handlePassChange,submitClicked,signup) => {
     if (!userManager.isLogin){
@@ -78,14 +79,18 @@ class Main extends Component {
             return
         }
         Axios.post(`${STATICS.SERVER_API_ADDRESS}adminLogin`,{username:this.state.username,password:this.state.password}).then(res => {
+            console.log(res.data.session)
+            SessionManager.setSession(res.data.session)
+            console.log(res)
             if (res.status == 200){
                 userManager.isLogin = true
                 this.forceUpdate()
-                
             }
         }).catch(err => {
-            if (err.response.status == 400){            
-                alert('Wrong Username or Password')
+            if(err.response){
+                if (err.response.status == 400){            
+                    alert('Wrong Username or Password')
+                }
             }
         })
     }

@@ -9,13 +9,28 @@ const config = require("./config.js").get(process.env.NODE_ENV)
 const util = require('util')
 const stream = require('stream')
 const pipeline = util.promisify(stream.pipeline)
+
 const stringify = require('csv-stringify')
 const fs = require('fs')
-// const fsp = require('fs').promises
+const session = require('express-session')
+
+const MongoStore = require('connect-mongo')(session);
+const bcrypt = require('bcryptjs')
+const isAuth = require('../MiddleWere/is-auth')
 
 var app = express()
+const store = new MongoStore({
+    url:config.DATABASE
+})
+
+store.on('error', function(error) {
+    console.log(error);
+  });
+   
+
 const {Question} = require('../model/question.js')
 const {User} = require('../model/user.js')
+
 
 async function generateReport(){
     //create query cursor
@@ -50,6 +65,8 @@ generateReport()
     console.log("Not Connected to Database ERROR! ", err);
 });
 
+
+app.use(session({secret:'12340987',resave:false,saveUninitialized:false,store:store}))
 app.use(bodyParse.json())
 app.use(cookieParser())
 app.use(express.static(pather.join(__dirname, '../../client/build')))
@@ -105,68 +122,97 @@ app.post('/api/createUser', (req,res) => {
         })
         return
     }
-    
-    const user = new User(req.body)
-    user.save((err,doc) => {
-        console.log(err)
-        if (err ){
-            if(err.name == 'MongoError'){
-              if(err.keyPattern.email == 1){
-                return res.status(400).json({
-                    message:'ایمیل وارد شده تکراری می باشد',
-                    err:err
-               })
-            }
-        }
-
-        if (err.name == 'ValidationError'){
-                return res.status(400).json({
-                    message:'رمز عبور وارد شده کمتر از ۸ حرف می باشد',
-                    err:err
-                })
-            }
-        }
-
-        res.status(200).json({
-            post:true,
-            id:user._id
+    const pass = req.body.password
+    return bcrypt.hash(pass,12).then((hash) => {
+        
+        const user = new User({
+            email:req.body.email,
+            password:hash,
+            username:req.body.username
         })
+        user.save((err,doc) => {
+            console.log(err)
+            if (err){
+                if(err.name == 'MongoError'){
+                if(err.keyPattern.email == 1){
+                    return res.status(400).json({
+                        message:'ایمیل وارد شده تکراری می باشد',
+                        err:err
+                })
+                }
+            }
+
+            if (err.name == 'ValidationError'){
+                    return res.status(400).json({
+                        message:'رمز عبور وارد شده کمتر از ۸ حرف می باشد',
+                        err:err
+                    })
+                }
+            }
+
+            res.status(200).json({
+                post:true,
+                id:user._id
+            })
+        })
+
     })
 })
 //=====================================================================
 app.post('/api/adminLogin', (req,res) => {
-    User.find( {$and : [{username:req.body.username},{password:req.body.password},{isAdmin:true}]}, (err,doc) => {
-        
-        if (doc.length > 0){
-            res.status(200).json({
-                auth:true,
-                message: "WELCOME.",
-                doc:doc
+    User.findOne( {$and : [{username:req.body.username},{isAdmin:true}]}, (err,doc) => {                
+        if (doc){
+            bcrypt.compare(req.body.password,doc.password).then((com) => {
+                if (com) {
+                    req.session.isLoggedIn = true
+                    console.log(req.session.isLoggedIn)
+                    res.status(200).json({
+                        auth:true,
+                        session:req.session,
+                        message: "WELCOME.",
+                        doc:doc
+                    })
+                }else{
+                    res.status(400).json({
+                        message: 'Username and Password Incorrect',
+                    })
+                }
+            })            
+                return
+        }else{
+            res.status(400).json({
+                message: 'No such user exists',
             })
-             return
         }
-        res.status(400).json({
-            message: 'Username or Password Incorrect or Not Admin',
-        })
     })
 })
+//=====================================================================
 app.post('/api/userLogin', (req,res) => {
-    User.find( {$and : [{email:req.body.email},{password:req.body.password}]}, (err,doc) => {
-        
-        if (doc.length > 0){
-            res.status(200).json({
-                auth:true,
-                message: "WELCOME.",
-                doc:doc[0]
+    User.findOne( {$and : [{email:req.body.email}]}, (err,doc) => {  
+        if (doc){
+            bcrypt.compare(req.body.password,doc.password).then((com) => {
+                if (com) {
+                    req.session.isLoggedIn = true
+                    res.status(200).json({
+                        auth:true,
+                        message: "خوش آمدید",
+                        doc:doc
+                    })
+                }else{
+                    res.status(400).json({
+                        message: 'نام کاربر یا رمز عبور اشتباه می باشد',
+                    })
+                }
+            })            
+                return
+        }else{
+            res.status(400).json({
+                message: 'نام کاربر وارد شده وجود ندارد',
             })
-             return
         }
-        res.status(400).json({
-            message: 'نام کاربر یا رمز عبور اشتباه می باشد',
-        })
     })
 })
-
+//=====================================================================
 app.post('/api/vote', (req,res) => {
     
     if (req.body._id == null){
@@ -314,6 +360,14 @@ app.get('/api/getQuestion' , (req,res) => {
 //=====================================================================
 // USER API :
 
+app.get('/api/isUserAuth', (req,res) => {
+    isAuth(req.query,res , () => {
+        res.status(200).json({
+            auth:true,
+        })
+    })
+})
+//=====================================================================
 app.get('/api/getAllUsers' , (req,res) => {
     User.find().exec((err,doc) => 
     {
@@ -363,6 +417,28 @@ app.post('/api/updateQuestion', (req,res)=> {
         })
     })
 })
+//=====================================================================
+app.post('/api/updatePasswordHash' , (req,res) => {
+    
+    User.findById(req.body.id, (err,doc) => {
+        const pass = doc.password
+        return bcrypt.hash(pass,12).then((hash) => {
+            User.findByIdAndUpdate(req.body.id,{password:hash}, {new:true} , (err,doc) => {
+                if (err) {
+                    return res.status(400).send(err)
+                }
+
+                res.json({
+                    success:true,
+                    doc:doc,
+                })
+            })
+        }).catch((err) => {
+            console.log(err)
+        })
+    })
+})
+
 
 // QUESTION API :
 app.post('/api/validateQuestionById', (req,res)=> {
