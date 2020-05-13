@@ -8,7 +8,7 @@ import * as SessionManager from '../../Utilities/Utilities'
 import userManager from '../../Manager/userManager';
 
 
-const usersList =  (users) => {
+const usersList =  (users,updateView) => {
     
     if (users == null || users.lenght == 0) {
         return(
@@ -18,7 +18,7 @@ const usersList =  (users) => {
     
     if (users.lenght != 0){
         
-        var renderedOutput = users.map((item,index) => <UB name={item.username} email={item.email} id={item._id} key={index} number={index + 1}/>)
+        var renderedOutput = users.map((item,index) => <UB updateView={updateView} name={item.username} email={item.email} id={item._id} key={index} number={index + 1}/>)
         return(
             <div style={{width:'100%',height:'100%',flexDirection:'column' , display:'flex',alignSelf:'center',justifySelf:'center',overflow:'scroll',margin:8}}>
                 {renderedOutput}
@@ -47,10 +47,15 @@ class UserListView extends Component {
     constructor (){
         super()
         this.getUsers()
+        this.updateView = this.updateView.bind(this)
     }
 
     componentWillMount() {
         this.Auth()
+    }
+
+    updateView() {
+        this.getUsers()
     }
 
     Auth (){
@@ -101,7 +106,7 @@ class UserListView extends Component {
                 <div className='User-list-container'>
                     <Header/>
                     <div className='User-list'>
-                        {usersList(list)}
+                        {usersList(list,this.updateView)}
                     </div>
                     {backComponent()}
                 </div>

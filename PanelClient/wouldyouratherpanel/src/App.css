@@ -62,7 +62,7 @@ body {
 
 .Validate-first-question{
   display: flex;
-  background-color: red;
+  background-color: #d42222;
   color: white;
   vertical-align: middle;
   grid-area: firstq;
@@ -73,7 +73,7 @@ body {
 
 .Validate-second-question{
   display: flex;
-  background-color: blue;
+  background-color: #2467e2;
   color: white;
   vertical-align: middle;
   grid-area: secondq;
@@ -114,7 +114,7 @@ body {
   display: flex;
   color: white;
   grid-area: t2;
-  background-color: #d835354f;
+  background-color: #00c03a;
   width: 75px;
   height: 75px;
   border-radius: 50%;

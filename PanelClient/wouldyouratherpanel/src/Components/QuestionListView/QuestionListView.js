@@ -7,7 +7,7 @@ import { Link,Redirect } from 'react-router-dom';
 import * as SessionManager from '../../Utilities/Utilities'
 import userManager from '../../Manager/userManager';
 
-const questionsList =  (questions) => {
+const questionsList =  (questions,updateView) => {
     
     if (questions == null || questions.lenght == 0) {
         return(
@@ -16,7 +16,7 @@ const questionsList =  (questions) => {
     }
     
     if (questions.lenght != 0){
-        var renderedOutput = questions.map((item,index) => <QB firstQuestion={item.firstQuestion} secondQuestion={item.secondQuestion} id={item._id} key={index} number={index + 1}/>)
+        var renderedOutput = questions.map((item,index) => <QB updateView={updateView} firstQuestion={item.firstQuestion} secondQuestion={item.secondQuestion} id={item._id} key={index} number={index + 1}/>)
         return(
             <div style={{width:'100%',height:'100%',flexDirection:'column' , display:'flex',alignSelf:'center',justifySelf:'center',overflow:'scroll',margin:8}}>
                 {renderedOutput}
@@ -43,7 +43,12 @@ class QuestionListView extends Component {
     constructor (){
         super()
         this.getQuestions()
+        this.updateView = this.updateView.bind(this)
+    }
 
+    updateView() {
+        this.getQuestions()
+        // this.forceUpdate()
     }
 
     componentWillMount() {
@@ -99,7 +104,7 @@ class QuestionListView extends Component {
                 <div className='Question-list-container'>
                     <Header/>
                     <div className='Question-list'>
-                        {questionsList(list)}
+                        {questionsList(list,this.updateView)}
                     </div>
                     {backComponent()}
                 </div>
