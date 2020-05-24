@@ -30,6 +30,7 @@ store.on('error', function(error) {
 
 const {Question} = require('../model/question.js')
 const {User} = require('../model/user.js')
+const {ClientConfig} = require('../model/cleintConfig.js')
 
 
 async function generateReport(){
@@ -306,13 +307,54 @@ app.get('api/getUserBookmarksByID' , (req,res) => {
 })
 //=====================================================================
 app.get('/api/getAllQuestion' , (req,res) => {
-    Question.find().exec((err,doc) => 
-    {
-        if (err){
-            res.status(400).send(err)
+
+    ClientConfig.countDocuments((err,count) => {
+        if(count == 0){
+            const newConfig = new ClientConfig()
+            newConfig.save((err,doc) => {
+                if (err){
+                    res.status(400).send(err)
+                }
+            })
+
+            Question.find().exec((err,doc) => 
+            {
+        
+                if (err){
+                    res.status(400).send(err)
+                }
+        
+                ClientConfig.find((err,data) => {
+                    // console.log(data)
+                    res.json({
+                        doc:doc,
+                        clientConfig: data,
+                    })
+                })
+        
+            })
+            return
         }
-        res.send(doc)
+
+        Question.find().exec((err,doc) => 
+        {
+            console.log(doc)
+            if (err){
+                res.status(400).send(err)
+            }
+    
+            ClientConfig.find((err,data) => {
+                // console.log(data)
+                res.json({
+                    doc:doc,
+                    clientConfig: data,
+                })
+            })
+    
+        })
     })
+
+ 
 })
 //=====================================================================
 app.get('/api/getAllVerifiedQuestion' , (req,res) => {

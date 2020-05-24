@@ -80,7 +80,7 @@ class QuestionListView extends Component {
     
     getQuestions () {
         axios.get(`${STATICS.SERVER_API_ADDRESS}getAllQuestion`).then( (res) => {
-            var tempQ = res.data
+            var tempQ = res.data.doc
             this.setState({
                 questions:tempQ
             })
