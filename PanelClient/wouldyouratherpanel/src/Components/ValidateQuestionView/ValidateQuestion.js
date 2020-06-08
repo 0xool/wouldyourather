@@ -11,15 +11,15 @@ import Header from '../Header/Header'
 const firstQuestionComponent = (firstQuestion,editHandler) => {
     return (
         <div className='Validate-first-question'>
-            <input type="text" style={{width:'80%', textAlign:'center',backgroundColor:'#d42222',place:'white',borderColor:'#2467e2',color:'white',border:'none'}}  onChange={editHandler} onSelect={editHandler} placeholder={firstQuestion}></input>
+            <input dir="rtl" type="text" style={{width:'80%', textAlign:'center',backgroundColor:'#d42222',place:'white',borderColor:'#2467e2',color:'white',border:'none'}}  onChange={editHandler} onSelect={editHandler} placeholder={firstQuestion}></input>
         </div>
     )
 }
 
 const secondQuestionComponent = (secondQuestion,editHandler) => {
     return (
-        <div className='Validate-second-question'>
-            <input type="text" style={{width:'80%', textAlign:'center',backgroundColor:'#2467e2',place:'white',borderColor:'#2467e2',color:'white',border:'none'}}  onChange={editHandler} onSelect={editHandler} placeholder={secondQuestion}></input>
+        <div dir="rtl" className='Validate-second-question'>
+            <input dir="rtl" type="text" style={{width:'80%', textAlign:'center',backgroundColor:'#2467e2',place:'white',borderColor:'#2467e2',color:'white',border:'none'}}  onChange={editHandler} onSelect={editHandler} placeholder={secondQuestion}></input>
         </div>
     )
 }

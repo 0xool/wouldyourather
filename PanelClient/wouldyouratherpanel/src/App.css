@@ -343,6 +343,23 @@ body {
   justify-self: center;
 }
 
+.Main-view-control-user-list {
+  display: flex;
+  right: 16px;
+  bottom: 16px;
+  position: absolute;
+  color: white;
+  border-radius: 10px;
+  text-decoration: none;
+  width: 75px;
+  height: 75px;
+  background-color: #2467e2;
+  align-items: center;  
+  justify-content: center;
+  font-size: 12px;
+  justify-self: center;
+}
+
 .Main-view-login-question-list {
   display: flex;
   grid-area: questionList;
@@ -519,6 +536,20 @@ body {
     width: 100%;
 }
 
+.Control-list-container {
+  background-color: #292929;
+  display: grid;
+  grid-template-columns: 1fr 60% 1fr;
+  grid-template-rows: 2fr 80% 1fr;
+  grid-template-areas: 
+        "free d free2"
+        "free ControlList free2"
+        "free f free2";
+    z-index: 1;
+    height: 100vh;
+    width: 100%;
+}
+
 .User-list {
   background-color: #282c34;
   display: flex;
@@ -528,7 +559,17 @@ body {
   align-items: center;
   color: white;
   padding-top: 8px;
-  
+}
+
+.Control-list {
+  background-color: #282c34;
+  display: flex;
+  grid-area: ControlList;
+  box-shadow: 2px 2px 5px black;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  padding-top: 8px;
 }
 
 .User-box-container {
@@ -543,6 +584,18 @@ body {
         "delete f2 email name number"
         "free2 free2 free2 free2 free2";
   gap: 8px;
+    
+}
+
+.Control-box-container {
+  padding: 8px;
+  justify-self: center;
+  align-self: center;
+  align-content: center;
+  justify-items: center;
+  margin: 4px;
+  display: flex;
+  flex-direction: row-reverse;
     
 }
 

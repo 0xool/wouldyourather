@@ -52,7 +52,7 @@ const mainView = (firstQuestionEnter,secondQuestionEnter,sendQuestion) => {
         return (
             <div className='Validate-container'>
                 <div className="Validate-logo">
-                    .سوال خود را وارد کنید
+                    سوال خود را وارد کنید.
                 </div>
                 {firstQuestionComponent(firstQuestionEnter)}
                 {orQuestionComponent()}

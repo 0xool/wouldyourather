@@ -19,6 +19,9 @@ class OptionMenu extends Component {
                 <Link to={{pathname:'/userList'}} className='Main-view-login-user-list'>
                     لیست کاربران
                 </Link>
+                <Link to={{pathname:'/gameControlPanel'}} className='Main-view-control-user-list'>
+                    تنظیمات بازی
+                </Link>
             </div>
         )
     }

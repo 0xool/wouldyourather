@@ -102,6 +102,10 @@ app.post('/api/postQuestion', (req,res) => {
 
 })
 //=====================================================================
+// CONTROL PANEL API:
+
+
+//=====================================================================
 // User API :
 
 app.post('/api/createUser', (req,res) => {
@@ -357,6 +361,13 @@ app.get('/api/getAllQuestion' , (req,res) => {
  
 })
 //=====================================================================
+app.get('/api/getClientConfig' , (req,res) => {
+    ClientConfig.findOne({}, {}, { sort: { 'created_at' : -1 } }, function(err, config) {
+        if(err)  return res.status(400).send(err)
+        res.send(config)
+    })
+})
+//=====================================================================
 app.get('/api/getAllVerifiedQuestion' , (req,res) => {
     Question.find({isVerified:{$eq: true}} , (err,doc) => {
         if (err) return res.status(400).send(err)
@@ -447,18 +458,62 @@ app.get('/api/getAllUserBookmarks' , (req,res) => {
 })
 //=====================================================================
 // ======================= Update ==========================
-app.post('/api/updateQuestion', (req,res)=> {
-    Question.findByIdAndUpdate(req.body.id, {firstQuestion:req.body.firstQuestion,secondQuestion:req.body.secondQuestion}, {new:true}, (err,doc)=>{
-        if (err){
-            return res.status(400).send(err)
+// CONTROL PANEL API:
+app.post('/api/updateControlSegment', (req,res)=> {
+    ClientConfig.findOne({}, {}, { sort: { 'created_at' : -1 } }, function(err, config) {
+        
+        // type check error or handeling after mongoose callback error
+        var update = {}
+        if(req.body.buyUsComponentLimit){
+            update.buyUsComponentLimit = req.body.buyUsComponentLimit
         }
+        if(req.body.buyUsPopUpTimer){
+            update.buyUsPopUpTimer = req.body.buyUsPopUpTimer
+        }
+        if(req.body.buyUsPopUpTimer){
+            update.buyUsPopUpTimer = req.body.buyUsPopUpTimer
+        }
+        if(req.body.buyUsPopUpText){
+            update.buyUsPopUpText = req.body.buyUsPopUpText
+        }
+        if(req.body.rateUsFirstText){
+            update.rateUsFirstText = req.body.rateUsFirstText
+        }
+        if(req.body.rateUsSecondText){
+            update.rateUsSecondText = req.body.rateUsSecondText
+        }
+        if(req.body.buyUsFirstText){
+            update.buyUsFirstText = req.body.buyUsFirstText
+        }
+        if(req.body.buyUsSecondText){
+            update.buyUsSecondText = req.body.buyUsSecondText
+        }
+        if(req.body.addQuestionRuleText){
+            update.addQuestionRuleText = req.body.addQuestionRuleText
+        }
+        if(req.body.shareUsShakeAnimationStart){
+            update.shareUsShakeAnimationStart = req.body.shareUsShakeAnimationStart
+        }
+        if(req.body.shareUsTutorialAnimationStart){
+            update.shareUsTutorialAnimationStart = req.body.shareUsTutorialAnimationStart
+        }
+        if(req.body.showPopUpAdLimit){
+            update.showPopUpAdLimit = req.body.showPopUpAdLimit
+        }
+        
+        ClientConfig.findByIdAndUpdate(config._id,update,{useFindAndModify:false}, (err,doc) => {
+            if (err){
+                return res.status(400).send(err)
+            }
 
-        res.json({
-            success:true,
-            doc:doc
+            res.json({
+                success:true,
+                update:update
+            })
         })
-    })
+      });
 })
+
 //=====================================================================
 app.post('/api/updatePasswordHash' , (req,res) => {
     
@@ -480,9 +535,22 @@ app.post('/api/updatePasswordHash' , (req,res) => {
         })
     })
 })
-
-
+//=====================================================================
 // QUESTION API :
+
+app.post('/api/updateQuestion', (req,res)=> {
+    Question.findByIdAndUpdate(req.body.id, {firstQuestion:req.body.firstQuestion,secondQuestion:req.body.secondQuestion}, {new:true}, (err,doc)=>{
+        if (err){
+            return res.status(400).send(err)
+        }
+
+        res.json({
+            success:true,
+            doc:doc
+        })
+    })
+})
+//=====================================================================
 app.post('/api/validateQuestionById', (req,res)=> {
     Question.countDocuments({isVerified:true},(err,count) => {
         if (err){

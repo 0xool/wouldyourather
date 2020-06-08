@@ -7,12 +7,14 @@ import QL from './Components/QuestionListView/QuestionListView'
 import UL from './Components/UserListView/UserListView'
 import SQV from './Components/SingleQuestionView/SingleQuestionView'
 import G from './Components/Game/Game'
+import CPV from './Components/ControlPanelView/ControlPanelView'
 
 
 const Routes = () => {
     return(
             <Switch>                
                 <Route path="/userList" exact component={UL}/>
+                <Route path="/gameControlPanel" exact component={CPV}/>
                 <Route path="/questionList" exact component={QL}/>
                 <Route path="/validateQuestion" exact component={VQ}/>
                 <Route path="/addQuestion" component={AQ}/>
